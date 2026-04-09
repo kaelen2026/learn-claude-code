@@ -193,7 +193,7 @@ export class AgentRuntime {
   }
 
   /** 处理单轮用户输入（含流式输出和工具调用） */
-  async processUserTurn(userInput: string): Promise<void> {
+  async processUserTurn(userInput: string, options?: { signal?: AbortSignal }): Promise<void> {
     if (!this.sessionMessageState || !this.sessionCompactor || !this.sessionSystemPrompt) {
       throw new Error('Session not initialized. Call initSession() first.');
     }
@@ -214,6 +214,7 @@ export class AgentRuntime {
     let continueLoop = true;
 
     while (continueLoop) {
+      if (options?.signal?.aborted) break;
       loopController.next();
 
       // drain notifications

@@ -6,6 +6,7 @@ import { createApprovalHandler } from '../ui/approval.js';
 import { printAssistantMessage } from '../ui/console.js';
 import { createInputHandler } from '../ui/input.js';
 import { createRenderer } from '../ui/renderer.js';
+import type { Spinner } from '../ui/spinner.js';
 import { colors, symbols } from '../ui/theme.js';
 import { printHelp, printWelcomeBanner } from '../ui/welcome.js';
 
@@ -69,11 +70,13 @@ async function runInteractiveChat() {
     worktreesDir: store.paths.worktreesDir,
   });
 
-  const { handler } = createRenderer();
+  const { handler, spinner } = createRenderer();
   const inputHandler = createInputHandler();
 
-  // 注入交互式权限审批
-  toolBundle.permissionGate.setApprovalHandler(createApprovalHandler());
+  // 注入交互式权限审批（复用主 readline + 停止 spinner）
+  toolBundle.permissionGate.setApprovalHandler(
+    createApprovalHandler(spinner, inputHandler.question),
+  );
 
   const runtime = createAgentRuntime({
     workspaceStore: store,
@@ -122,7 +125,11 @@ async function runInteractiveChat() {
     }
 
     try {
-      await runtime.processUserTurn(input);
+      const ac = new AbortController();
+      const onEsc = createEscHandler(ac, spinner);
+      process.stdin.on('data', onEsc);
+      await runtime.processUserTurn(input, { signal: ac.signal });
+      process.stdin.removeListener('data', onEsc);
     } catch (error) {
       console.log(
         colors.error(`\nFatal error: ${error instanceof Error ? error.message : String(error)}\n`),
@@ -159,4 +166,19 @@ async function runSubagent(store: WorkspaceStore, toolBundle: ToolBundle, task: 
       colors.error(`  Agent error: ${error instanceof Error ? error.message : String(error)}\n`),
     );
   }
+}
+
+/**
+ * ESC 键处理——按下 ESC 时中止当前运行的任务。
+ * 监听 raw stdin data，检测 ESC 字符（\x1b 且不是 ANSI 序列的开头）。
+ */
+function createEscHandler(ac: AbortController, spinner: Spinner) {
+  return (data: Buffer) => {
+    // ESC = 0x1b, 单独按下时只有一个字节（ANSI 序列是 \x1b[ 开头，至少2字节）
+    if (data.length === 1 && data[0] === 0x1b) {
+      ac.abort();
+      spinner.stop();
+      console.log(colors.dim('\n  Aborted.\n'));
+    }
+  };
 }
