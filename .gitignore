@@ -26,3 +26,6 @@ Thumbs.db
 # Test files created by examples
 test.txt
 hello.txt
+
+# Context compact cache
+.compact-cache/

@@ -38,6 +38,9 @@ npm run s04
 
 # 运行 Stage 05: Skill Loading
 npm run s05
+
+# 运行 Stage 06: Context Compact
+npm run s06
 ```
 
 ## 学习路径
@@ -53,7 +56,7 @@ npm run s05
 - ✅ s03: Todo Write - 任务管理
 - ✅ s04: Subagent - 子代理
 - ✅ s05: Skill Loading - 技能加载
-- ⏳ s06: Context Compact - 上下文压缩
+- ✅ s06: Context Compact - 上下文压缩
 
 **第二部分：安全、扩展性、记忆（s07-s11）**
 
@@ -78,6 +81,7 @@ learn-claude-code-ts/
 │   │   ├── s03-todo-write.ts
 │   │   ├── s04-subagent.ts
 │   │   ├── s05-skill-loading.ts
+│   │   ├── s06-context-compact.ts
 │   │   └── ...
 │   ├── core/            # 核心类型和工具
 │   │   ├── types.ts
