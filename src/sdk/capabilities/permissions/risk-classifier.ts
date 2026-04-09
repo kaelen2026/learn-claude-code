@@ -1,4 +1,5 @@
 import type { ToolDefinition } from '../../shared/types.js';
+import { commandTouchesSensitiveEnv } from './sensitive-access.js';
 
 export type PermissionMode = 'default' | 'plan' | 'auto';
 export type PermissionBehavior = 'allow' | 'deny' | 'ask';
@@ -23,7 +24,11 @@ export function classifyToolRisk(
 
   if (tool.name === 'bash') {
     const command = String(input.command || '');
-    if (command.includes('sudo') || command.includes('rm -rf')) {
+    if (
+      command.includes('sudo') ||
+      command.includes('rm -rf') ||
+      commandTouchesSensitiveEnv(command)
+    ) {
       return 'high';
     }
     return 'write';

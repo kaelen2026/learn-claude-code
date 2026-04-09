@@ -1,4 +1,5 @@
 import { NotificationQueue } from '../../sdk/capabilities/background/notification-queue.js';
+import { isValidCron } from '../../sdk/capabilities/scheduling/cron-parser.js';
 import {
   formatSchedule,
   ScheduleManager,
@@ -36,6 +37,11 @@ export async function runScheduleCommand(argv: string[]) {
         console.error(
           '请提供 cron 和 prompt，例如: npm start -- schedule create "*/5 * * * *" "提醒我检查测试结果"',
         );
+        process.exitCode = 1;
+        return;
+      }
+      if (!isValidCron(cron)) {
+        console.error(`无效的 cron 表达式: ${cron}`);
         process.exitCode = 1;
         return;
       }

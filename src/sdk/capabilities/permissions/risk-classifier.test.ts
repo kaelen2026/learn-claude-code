@@ -25,6 +25,7 @@ describe('classifyToolRisk', () => {
   it('classifies bash with dangerous commands as high', () => {
     expect(classifyToolRisk(makeTool('bash'), { command: 'sudo rm -rf /' })).toBe('high');
     expect(classifyToolRisk(makeTool('bash'), { command: 'rm -rf /tmp' })).toBe('high');
+    expect(classifyToolRisk(makeTool('bash'), { command: 'cat .env.local' })).toBe('high');
   });
 
   it('classifies read-prefixed tools as read', () => {

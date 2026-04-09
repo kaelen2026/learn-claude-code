@@ -17,7 +17,7 @@ export function createReadFileTool(workspaceRoot: string): ToolDefinition {
     },
     execute: async (input) => {
       const requestedPath = String(input.path || '');
-      const resolved = resolveWorkspacePath(workspaceRoot, requestedPath, 'file');
+      const resolved = await resolveWorkspacePath(workspaceRoot, requestedPath, 'file');
       if (!resolved.ok || !resolved.path) {
         return resolved.error || `无效文件路径: ${requestedPath}`;
       }
