@@ -1,6 +1,7 @@
 import { readdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import type { ToolDefinition } from '../../../shared/types.js';
+import { resolveWorkspacePath } from '../../../shared/path-safety.js';
 
 export function createListFilesTool(workspaceRoot: string): ToolDefinition {
   return {
@@ -14,12 +15,17 @@ export function createListFilesTool(workspaceRoot: string): ToolDefinition {
       },
     },
     execute: async (input) => {
-      const path = String(input.path || workspaceRoot);
-      if (!existsSync(path)) {
-        return `目录不存在: ${path}`;
+      const requestedPath = String(input.path || '.');
+      const resolved = resolveWorkspacePath(workspaceRoot, requestedPath, 'directory');
+      if (!resolved.ok || !resolved.path) {
+        return resolved.error || `无效目录路径: ${requestedPath}`;
       }
 
-      const entries = await readdir(path, { withFileTypes: true });
+      if (!existsSync(resolved.path)) {
+        return `目录不存在: ${requestedPath}`;
+      }
+
+      const entries = await readdir(resolved.path, { withFileTypes: true });
       return entries
         .map((entry) => `${entry.isDirectory() ? 'dir ' : 'file'} ${entry.name}`)
         .join('\n');

@@ -85,7 +85,7 @@ export async function createDefaultToolRegistry(input: {
   autonomousController: AutonomousController;
 }> {
   const registry = new ToolRegistry();
-  registry.register(createReadFileTool());
+  registry.register(createReadFileTool(input.workspaceRoot));
   registry.register(createListFilesTool(input.workspaceRoot));
 
   const memoryManager = new MemoryManager(

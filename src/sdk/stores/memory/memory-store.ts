@@ -12,7 +12,7 @@ export class MemoryStore {
   ) {}
 
   async save(entry: Omit<MemoryEntryRecord, 'filename'>): Promise<MemoryEntryRecord> {
-    const filename = `${entry.type}_${slugify(entry.name)}.md`;
+    const filename = await this.buildUniqueFilename(entry.type, entry.name);
     const filepath = join(this.entriesDir, filename);
 
     const content = [
@@ -112,6 +112,19 @@ export class MemoryStore {
 
     if (!name || !description || !type) return null;
     return { name, description, type, filename, body };
+  }
+
+  private async buildUniqueFilename(type: MemoryType, name: string): Promise<string> {
+    const baseSlug = slugify(name) || 'memory';
+    let candidate = `${type}_${baseSlug}.md`;
+    let suffix = 2;
+
+    while (existsSync(join(this.entriesDir, candidate))) {
+      candidate = `${type}_${baseSlug}_${suffix}.md`;
+      suffix += 1;
+    }
+
+    return candidate;
   }
 }
 

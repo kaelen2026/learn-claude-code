@@ -55,7 +55,13 @@ export class BackgroundManager {
   private execute(taskId: string, command: string) {
     const duration = 1000 + Math.random() * 2000;
 
-    setTimeout(async () => {
+    setTimeout(() => {
+      void this.finishExecution(taskId, command, duration);
+    }, duration);
+  }
+
+  private async finishExecution(taskId: string, command: string, duration: number): Promise<void> {
+    try {
       const task = await this.store.get(taskId);
       if (!task) return;
 
@@ -75,6 +81,20 @@ export class BackgroundManager {
         status,
         preview: task.resultPreview,
       });
-    }, duration);
+    } catch (error) {
+      const failedTask = await this.store.get(taskId);
+      if (!failedTask) return;
+
+      failedTask.status = 'failed';
+      failedTask.resultPreview = `后台任务失败: ${error instanceof Error ? error.message : String(error)}`;
+      await this.store.save(failedTask);
+
+      this.queue.push({
+        type: 'background_completed',
+        taskId,
+        status: 'failed',
+        preview: failedTask.resultPreview,
+      });
+    }
   }
 }

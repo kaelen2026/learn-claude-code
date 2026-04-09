@@ -1,6 +1,8 @@
 import type { TaskStatus, ToolDefinition } from '../../../shared/types.js';
 import { formatTask, type TaskManager } from '../../../capabilities/tasks/task-manager.js';
 
+const VALID_STATUSES: TaskStatus[] = ['pending', 'in_progress', 'completed', 'deleted'];
+
 export function createTaskUpdateTool(manager: TaskManager): ToolDefinition {
   return {
     name: 'task_update',
@@ -19,11 +21,21 @@ export function createTaskUpdateTool(manager: TaskManager): ToolDefinition {
     },
     execute: async (input) => {
       const id = Number(input.id);
+      if (!Number.isInteger(id) || id <= 0) {
+        return `错误: 无效任务 ID "${String(input.id)}"`;
+      }
 
       if (Array.isArray(input.blockedBy)) {
+        const blockers = Array.from(
+          new Set(
+            input.blockedBy
+              .map((value) => Number(value))
+              .filter((value) => Number.isInteger(value) && value > 0 && value !== id)
+          )
+        );
         await manager.addBlockedBy(
           id,
-          input.blockedBy.map((value) => Number(value))
+          blockers
         );
       }
 
@@ -34,7 +46,13 @@ export function createTaskUpdateTool(manager: TaskManager): ToolDefinition {
         subject?: string;
       } = {};
 
-      if (input.status) updates.status = String(input.status) as TaskStatus;
+      if (input.status !== undefined) {
+        const status = String(input.status) as TaskStatus;
+        if (!VALID_STATUSES.includes(status)) {
+          return `错误: 无效状态 "${status}"，允许值: ${VALID_STATUSES.join(', ')}`;
+        }
+        updates.status = status;
+      }
       if (input.owner !== undefined) updates.owner = String(input.owner);
       if (input.description !== undefined) updates.description = String(input.description);
       if (input.subject !== undefined) updates.subject = String(input.subject);

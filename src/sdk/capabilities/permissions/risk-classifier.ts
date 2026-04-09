@@ -45,6 +45,14 @@ export function classifyToolRisk(
 }
 
 export function globMatch(pattern: string, text: string): boolean {
-  const regex = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`);
-  return regex.test(text);
+  const escaped = pattern
+    .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*');
+
+  try {
+    const regex = new RegExp(`^${escaped}$`);
+    return regex.test(text);
+  } catch {
+    return false;
+  }
 }

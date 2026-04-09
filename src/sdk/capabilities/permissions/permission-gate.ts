@@ -2,11 +2,24 @@ import type { ToolDefinition } from '../../shared/types.js';
 import { classifyToolRisk, type PermissionDecision, type PermissionMode, type PermissionRule } from './risk-classifier.js';
 import { evaluatePermissionPolicy } from './policy-engine.js';
 
+export interface PermissionApprovalResponse {
+  approved: boolean;
+  alwaysAllow: boolean;
+}
+
+export type PermissionApprovalHandler = (
+  tool: ToolDefinition,
+  params: Record<string, unknown>
+) => Promise<PermissionApprovalResponse>;
+
 export class PermissionGate {
   private readonly rules: PermissionRule[] = [];
   private consecutiveDenials = 0;
 
-  constructor(private mode: PermissionMode = 'default') {}
+  constructor(
+    private mode: PermissionMode = 'default',
+    private readonly approvalHandler?: PermissionApprovalHandler
+  ) {}
 
   addRule(rule: PermissionRule) {
     this.rules.push(rule);
@@ -38,19 +51,21 @@ export class PermissionGate {
     return decision;
   }
 
-  async askUser(tool: ToolDefinition, params: Record<string, unknown>): Promise<{
-    approved: boolean;
-    alwaysAllow: boolean;
-  }> {
-    void params;
-
+  async askUser(
+    tool: ToolDefinition,
+    params: Record<string, unknown>
+  ): Promise<PermissionApprovalResponse> {
     if (this.mode === 'auto') {
       return { approved: true, alwaysAllow: false };
     }
 
+    if (this.approvalHandler) {
+      return this.approvalHandler(tool, params);
+    }
+
     return {
-      approved: true,
-      alwaysAllow: tool.riskLevel !== 'high',
+      approved: false,
+      alwaysAllow: false,
     };
   }
 }

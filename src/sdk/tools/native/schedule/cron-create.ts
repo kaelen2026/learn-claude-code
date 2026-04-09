@@ -1,5 +1,6 @@
 import type { ToolDefinition } from '../../../shared/types.js';
 import { formatSchedule, type ScheduleManager } from '../../../capabilities/scheduling/schedule-manager.js';
+import { isValidCron } from '../../../capabilities/scheduling/cron-parser.js';
 
 export function createCronCreateTool(manager: ScheduleManager): ToolDefinition {
   return {
@@ -15,8 +16,13 @@ export function createCronCreateTool(manager: ScheduleManager): ToolDefinition {
       required: ['cron', 'prompt'],
     },
     execute: async (input) => {
+      const cron = String(input.cron);
+      if (!isValidCron(cron)) {
+        return `错误: 无效的 cron 表达式 "${cron}"`;
+      }
+
       const record = await manager.create(
-        String(input.cron),
+        cron,
         String(input.prompt),
         input.recurring === undefined ? true : Boolean(input.recurring)
       );
