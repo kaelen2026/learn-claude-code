@@ -64,7 +64,7 @@ npm run s06
 - ✅ s08: Hook System - 钩子系统
 - ✅ s09: Memory System - 记忆系统
 - ✅ s10: System Prompt - 系统提示词
-- ⏳ s11: 待实现
+- ✅ s11: Error Recovery - 错误恢复
 
 **第三部分：持久化任务和调度（s12-s14）**
 
@@ -90,6 +90,7 @@ learn-claude-code-ts/
 │   │   ├── s08-hook-system.ts
 │   │   ├── s09-memory-system.ts
 │   │   ├── s10-system-prompt.ts
+│   │   ├── s11-error-recovery.ts
 │   │   └── ...
 │   ├── core/            # 核心类型和工具
 │   │   ├── types.ts
