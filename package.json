@@ -10,7 +10,8 @@
     "s01": "tsx src/stages/s01-agent-loop.ts",
     "s02": "tsx src/stages/s02-tool-use.ts",
     "s03": "tsx src/stages/s03-todo-write.ts",
-    "s04": "tsx src/stages/s04-subagent.ts"
+    "s04": "tsx src/stages/s04-subagent.ts",
+    "s05": "tsx src/stages/s05-skill-loading.ts"
   },
   "keywords": [
     "claude",
