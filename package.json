@@ -20,7 +20,12 @@
     "s11": "tsx src/stages/s11-error-recovery.ts",
     "s12": "tsx src/stages/s12-task-system.ts",
     "s13": "tsx src/stages/s13-background-tasks.ts",
-    "s14": "tsx src/stages/s14-scheduled-tasks.ts"
+    "s14": "tsx src/stages/s14-scheduled-tasks.ts",
+    "s15": "tsx src/stages/s15-agent-teams.ts",
+    "s16": "tsx src/stages/s16-team-protocols.ts",
+    "s17": "tsx src/stages/s17-autonomous-agents.ts",
+    "s18": "tsx src/stages/s18-worktree-isolation.ts",
+    "s19": "tsx src/stages/s19-mcp-plugin.ts"
   },
   "keywords": [
     "claude",

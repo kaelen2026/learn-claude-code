@@ -74,7 +74,11 @@ npm run s06
 
 **第四部分：团队协作和集成（s15-s19）**
 
-- ⏳ s15-s19: 待实现
+- ✅ s15: Agent Teams - 多代理团队
+- ✅ s16: Team Protocols - 团队协议
+- ✅ s17: Autonomous Agents - 自主代理
+- ✅ s18: Worktree Isolation - 工作树隔离
+- ✅ s19: MCP Plugin - MCP 插件系统
 
 ## 项目结构
 
@@ -96,6 +100,11 @@ learn-claude-code-ts/
 │   │   ├── s12-task-system.ts
 │   │   ├── s13-background-tasks.ts
 │   │   ├── s14-scheduled-tasks.ts
+│   │   ├── s15-agent-teams.ts
+│   │   ├── s16-team-protocols.ts
+│   │   ├── s17-autonomous-agents.ts
+│   │   ├── s18-worktree-isolation.ts
+│   │   ├── s19-mcp-plugin.ts
 │   │   └── ...
 │   ├── core/            # 核心类型和工具
 │   │   ├── types.ts

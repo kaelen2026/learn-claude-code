@@ -38,3 +38,12 @@ hello.txt
 
 # Background task output
 .bg-output/
+
+# Team system
+.team/
+
+# Autonomous agents
+.autonomous/
+
+# Worktrees
+.worktrees/
