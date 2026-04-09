@@ -32,3 +32,6 @@ hello.txt
 
 # Memory storage
 .memory/
+
+# Task system storage
+.tasks/
