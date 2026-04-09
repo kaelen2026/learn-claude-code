@@ -15,6 +15,8 @@
     "mcp": "tsx src/index.ts mcp",
     "example:minimal": "tsx src/examples/minimal-agent.ts",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "biome check src/",
     "lint:fix": "biome check --write src/",
     "format": "biome format --write src/",
@@ -62,7 +64,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.4"
   },
   "lint-staged": {
     "*.{ts,js,json}": [
