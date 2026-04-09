@@ -29,6 +29,9 @@ npm run s01
 
 # 运行 Stage 02: Tool Use
 npm run s02
+
+# 运行 Stage 03: Todo Write
+npm run s03
 ```
 
 ## 学习路径
@@ -41,7 +44,7 @@ npm run s02
 
 - ✅ s01: Agent Loop - 基础代理循环
 - ✅ s02: Tool Use - 工具使用
-- ⏳ s03: Todo Write - 任务管理
+- ✅ s03: Todo Write - 任务管理
 - ⏳ s04: Subagent - 子代理
 - ⏳ s05: Skill Loading - 技能加载
 - ⏳ s06: Context Compact - 上下文压缩
@@ -66,6 +69,7 @@ learn-claude-code-ts/
 │   ├── stages/          # 各个学习阶段的实现
 │   │   ├── s01-agent-loop.ts
 │   │   ├── s02-tool-use.ts
+│   │   ├── s03-todo-write.ts
 │   │   └── ...
 │   ├── core/            # 核心类型和工具
 │   │   ├── types.ts
