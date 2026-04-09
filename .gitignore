@@ -47,3 +47,6 @@ hello.txt
 
 # Worktrees
 .worktrees/
+
+# Unified runtime data
+data/

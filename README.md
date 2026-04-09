@@ -2,6 +2,32 @@
 
 这是 [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) 的 TypeScript 实现版本，帮助你从零开始构建一个 AI 编码代理系统。
 
+## 迁移状态
+
+仓库目前处于“两套结构并存”的迁移阶段：
+
+- `src/legacy-stages/` 继续保留 19 个教学阶段示例
+- `src/sdk/`、`src/cli/`、`src/index.ts` 是新的统一 runtime 骨架
+- 新 runtime 已经正式接入 `memory` 和 `task` 的 store / manager / tool 三层
+- 新 runtime 已经正式接入 `background`、`schedule` 的 store / manager / tool 三层
+- 新 runtime 已经把 `permissions` 和 `hooks` 接入统一工具执行链
+- 新 runtime 已经正式接入 `subagents/teams`、`worktrees` 和模拟 `MCP` 工具池
+- 新 runtime 已经补入 `context compact`、`error recovery` 和 `autonomous` 控制模块
+- `data/` 是新 runtime 的正式本地数据目录（已默认忽略提交）
+
+如果你想体验新的统一入口，可以运行：
+
+```bash
+npm start -- help
+npm start -- chat "帮我解释这个项目"
+npm start -- task list
+npm start -- memory list
+npm start -- schedule list
+npm start -- team list
+npm start -- worktree list
+npm start -- mcp list
+```
+
 ## 快速开始
 
 ### 1. 安装依赖
@@ -24,6 +50,12 @@ cp .env.example .env
 ### 3. 运行示例
 
 ```bash
+# 运行统一 runtime CLI
+npm start -- help
+
+# 使用统一 runtime 发起一次对话
+npm start -- chat "帮我概览仓库结构"
+
 # 运行 Stage 01: Agent Loop
 npm run s01
 
@@ -85,7 +117,9 @@ npm run s06
 ```
 learn-claude-code-ts/
 ├── src/
-│   ├── stages/          # 各个学习阶段的实现
+│   ├── cli/             # 新的 CLI 入口
+│   ├── sdk/             # 新的统一 runtime / tools / stores 骨架
+│   ├── legacy-stages/   # 各个学习阶段的历史实现
 │   │   ├── s01-agent-loop.ts
 │   │   ├── s02-tool-use.ts
 │   │   ├── s03-todo-write.ts
@@ -106,11 +140,13 @@ learn-claude-code-ts/
 │   │   ├── s18-worktree-isolation.ts
 │   │   ├── s19-mcp-plugin.ts
 │   │   └── ...
-│   ├── core/            # 核心类型和工具
+│   ├── core/            # 旧版核心类型和工具（供 stages 使用）
 │   │   ├── types.ts
 │   │   ├── config.ts
 │   │   └── client.ts
-│   └── index.ts
+│   ├── examples/        # 基于新 runtime 的示例
+│   └── index.ts         # 新统一 CLI 入口
+├── data/                # 新 runtime 的本地运行数据
 ├── learn-roadmap.md     # 详细学习指南
 ├── package.json
 ├── tsconfig.json
@@ -131,6 +167,12 @@ learn-claude-code-ts/
 3. **修改实验**：尝试修改参数和逻辑，看看会发生什么
 4. **阅读注释**：代码中有详细的中文注释
 5. **参考原仓库**：对比 Python 实现，理解核心概念
+
+## 新旧对照
+
+如果你想从旧 stage 过渡到新 runtime，可以看这份对照文档：
+
+- [Stage 到 Runtime 映射](./docs/architecture/stage-mapping.md)
 
 ## 相关资源
 
