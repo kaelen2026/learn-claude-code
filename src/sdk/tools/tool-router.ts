@@ -11,15 +11,18 @@ export async function executeToolCall(
     permissionGate?: PermissionGate;
     hookRunner?: HookRunner;
   } = {}
-): Promise<Anthropic.ToolResultBlockParam> {
+): Promise<import('./tool-executor.js').ToolExecutionOutcome> {
   const tool = tools.find((item) => item.name === block.name);
 
   if (!tool) {
     return {
-      type: 'tool_result',
-      tool_use_id: block.id,
-      content: `错误: 未找到工具 "${block.name}"`,
-      is_error: true,
+      toolResult: {
+        type: 'tool_result',
+        tool_use_id: block.id,
+        content: `错误: 未找到工具 "${block.name}"`,
+        is_error: true,
+      },
+      injectedMessages: [],
     };
   }
 

@@ -103,7 +103,7 @@ export class AgentRuntime {
           continue;
         }
         if (decision.kind === 'compact') {
-          const forced = compactor.maybeCompact(messageState.getAll());
+          const forced = compactor.forceCompact(messageState.getAll());
           messageState.replaceAll(forced.messages);
           recoveryState.compactAttempts += 1;
           continue;
@@ -135,12 +135,14 @@ export class AgentRuntime {
         if (block.type === 'text') {
           finalText += `${block.text}\n`;
         } else if (block.type === 'tool_use') {
-          toolResults.push(
-            await executeToolCall(tools, block, {
-              permissionGate: this.options.permissionGate,
-              hookRunner: this.options.hookRunner,
-            })
-          );
+          const outcome = await executeToolCall(tools, block, {
+            permissionGate: this.options.permissionGate,
+            hookRunner: this.options.hookRunner,
+          });
+          for (const injectedMessage of outcome.injectedMessages) {
+            messageState.pushUserText(injectedMessage);
+          }
+          toolResults.push(outcome.toolResult);
         }
       }
 
