@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { describe, expect, it } from 'vitest';
-import { resolveWorkspacePath } from './path-safety.js';
+import { isPathWithinRoot, resolveWorkspacePath } from './path-safety.js';
 
 describe('resolveWorkspacePath', () => {
   const root = '/workspace/project';
@@ -46,5 +46,13 @@ describe('resolveWorkspacePath', () => {
 
     const result = await resolveWorkspacePath(workspaceRoot, 'linked-outside/secret.txt', 'file');
     expect(result.ok).toBe(false);
+  });
+
+  it('treats absolute relative-path results as outside the workspace', () => {
+    expect(isPathWithinRoot('C:\\repo', 'D:\\secret', 'D:\\secret')).toBe(false);
+  });
+
+  it('treats different Windows drive roots as outside the workspace', () => {
+    expect(isPathWithinRoot('C:\\repo', 'D:\\secret', 'secret')).toBe(false);
   });
 });

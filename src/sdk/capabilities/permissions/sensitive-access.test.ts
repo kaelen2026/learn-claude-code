@@ -5,6 +5,7 @@ describe('isSensitiveEnvPath', () => {
   it('matches dotenv-style files', () => {
     expect(isSensitiveEnvPath('.env')).toBe(true);
     expect(isSensitiveEnvPath('config/.env.local')).toBe(true);
+    expect(isSensitiveEnvPath('config\\.env.local')).toBe(true);
     expect(isSensitiveEnvPath('nested/.env.production')).toBe(true);
   });
 
@@ -18,6 +19,7 @@ describe('commandTouchesSensitiveEnv', () => {
   it('matches read-style shell commands', () => {
     expect(commandTouchesSensitiveEnv('cat .env')).toBe(true);
     expect(commandTouchesSensitiveEnv('grep API_KEY config/.env.local')).toBe(true);
+    expect(commandTouchesSensitiveEnv('grep API_KEY config\\.env.local')).toBe(true);
     expect(commandTouchesSensitiveEnv('sed -n "1,5p" .env.production')).toBe(true);
   });
 
