@@ -1,7 +1,11 @@
 import { join } from 'path';
-import type { RuntimeNotification, RuntimeTaskRecord, RuntimeTaskStatus } from '../../shared/types.js';
-import { RuntimeTaskStore } from '../../stores/background/runtime-task-store.js';
-import { NotificationQueue } from './notification-queue.js';
+import type {
+  RuntimeNotification,
+  RuntimeTaskRecord,
+  RuntimeTaskStatus,
+} from '../../shared/types.js';
+import type { RuntimeTaskStore } from '../../stores/background/runtime-task-store.js';
+import type { NotificationQueue } from './notification-queue.js';
 import { previewOutput, writeOutputFile } from './output-capture.js';
 
 export class BackgroundManager {
@@ -10,7 +14,7 @@ export class BackgroundManager {
   constructor(
     private readonly store: RuntimeTaskStore,
     private readonly outputDir: string,
-    private readonly queue: NotificationQueue
+    private readonly queue: NotificationQueue,
   ) {}
 
   async init(): Promise<void> {

@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { SubagentManager } from '../../../capabilities/subagents/subagent-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createListSubagentResultsTool(manager: SubagentManager): ToolDefinition {
   return {
@@ -16,7 +16,7 @@ export function createListSubagentResultsTool(manager: SubagentManager): ToolDef
       return results
         .map(
           (result) =>
-            `📋 子代理 #${result.id}\n   任务: ${result.task}\n   结果: ${result.result.slice(0, 200)}`
+            `📋 子代理 #${result.id}\n   任务: ${result.task}\n   结果: ${result.result.slice(0, 200)}`,
         )
         .join('\n---\n');
     },

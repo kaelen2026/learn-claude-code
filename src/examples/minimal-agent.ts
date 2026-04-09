@@ -1,6 +1,6 @@
 import { createAgentRuntime } from '../sdk/runtime/agent-runtime.js';
-import { createDefaultToolRegistry } from '../sdk/tools/tool-registry.js';
 import { createWorkspaceStore } from '../sdk/stores/workspace-store.js';
+import { createDefaultToolRegistry } from '../sdk/tools/tool-registry.js';
 
 const workspaceStore = createWorkspaceStore(process.cwd());
 await workspaceStore.init();

@@ -31,7 +31,7 @@ export function isValidCron(cron: string): boolean {
   if (parts.length !== 5) return false;
 
   return parts.every((field, index) =>
-    validateField(field, FIELD_RANGES[index][0], FIELD_RANGES[index][1])
+    validateField(field, FIELD_RANGES[index][0], FIELD_RANGES[index][1]),
   );
 }
 

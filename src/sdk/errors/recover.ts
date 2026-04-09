@@ -1,10 +1,13 @@
 import type { RecoveryDecision, RecoveryState } from './error-types.js';
 import { MAX_COMPACT, MAX_CONTINUATION, MAX_TRANSPORT_RETRY } from './error-types.js';
 
-export function selectRecovery(input: {
-  stopReason?: string | null;
-  errorMessage?: string;
-}, state: RecoveryState): RecoveryDecision {
+export function selectRecovery(
+  input: {
+    stopReason?: string | null;
+    errorMessage?: string;
+  },
+  state: RecoveryState,
+): RecoveryDecision {
   if (input.stopReason === 'max_tokens') {
     if (state.continuationAttempts >= MAX_CONTINUATION) {
       return { kind: 'fail', reason: `续写次数已达上限 (${MAX_CONTINUATION})` };

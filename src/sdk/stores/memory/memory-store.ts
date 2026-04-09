@@ -1,5 +1,5 @@
-import { readdir, readFile, unlink, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
+import { readdir, readFile, unlink, writeFile } from 'fs/promises';
 import { join } from 'path';
 import type { MemoryEntryRecord, MemoryType } from './memory-record.js';
 
@@ -8,7 +8,7 @@ const INDEX_LINE_CAP = 200;
 export class MemoryStore {
   constructor(
     private readonly memoryDir: string,
-    private readonly entriesDir: string
+    private readonly entriesDir: string,
   ) {}
 
   async save(entry: Omit<MemoryEntryRecord, 'filename'>): Promise<MemoryEntryRecord> {
@@ -92,7 +92,7 @@ export class MemoryStore {
     await writeFile(
       join(this.memoryDir, 'MEMORY.md'),
       lines.slice(0, INDEX_LINE_CAP).join('\n'),
-      'utf-8'
+      'utf-8',
     );
   }
 

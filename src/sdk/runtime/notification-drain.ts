@@ -20,9 +20,9 @@ export async function drainNotifications(input: {
         notifications
           .map(
             (notification) =>
-              `[后台通知] 任务 ${notification.taskId} ${notification.status}: ${notification.preview.slice(0, 200)}`
+              `[后台通知] 任务 ${notification.taskId} ${notification.status}: ${notification.preview.slice(0, 200)}`,
           )
-          .join('\n\n')
+          .join('\n\n'),
       );
     }
   }
@@ -35,10 +35,9 @@ export async function drainNotifications(input: {
       messages.push(
         notifications
           .map(
-            (notification) =>
-              `[定时触发] 调度 ${notification.scheduleId}: ${notification.prompt}`
+            (notification) => `[定时触发] 调度 ${notification.scheduleId}: ${notification.prompt}`,
           )
-          .join('\n')
+          .join('\n'),
       );
     }
   }

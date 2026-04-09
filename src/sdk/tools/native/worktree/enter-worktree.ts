@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { WorktreeManager } from '../../../capabilities/worktrees/worktree-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createEnterWorktreeTool(manager: WorktreeManager): ToolDefinition {
   return {
@@ -15,7 +15,9 @@ export function createEnterWorktreeTool(manager: WorktreeManager): ToolDefinitio
     },
     execute: async (input) => {
       const record = await manager.enter(String(input.name));
-      return record ? `已进入工作树: ${record.name}` : `工作树 ${String(input.name)} 不存在或不可进入`;
+      return record
+        ? `已进入工作树: ${record.name}`
+        : `工作树 ${String(input.name)} 不存在或不可进入`;
     },
   };
 }

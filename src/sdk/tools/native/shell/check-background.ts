@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { BackgroundManager } from '../../../capabilities/background/background-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createCheckBackgroundTool(manager: BackgroundManager): ToolDefinition {
   return {

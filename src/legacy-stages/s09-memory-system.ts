@@ -29,13 +29,13 @@
  * - System prompt 注入
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { readdir, readFile, writeFile, mkdir, unlink } from 'fs/promises';
+import type Anthropic from '@anthropic-ai/sdk';
 import { existsSync } from 'fs';
+import { mkdir, readdir, readFile, unlink, writeFile } from 'fs/promises';
 import { join } from 'path';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -78,7 +78,10 @@ class MemoryManager {
     await this.init();
 
     // 生成文件名
-    const slug = entry.name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\u4e00-\u9fff]/g, '').slice(0, 40);
+    const slug = entry.name
+      .replace(/\s+/g, '_')
+      .replace(/[^a-zA-Z0-9_\u4e00-\u9fff]/g, '')
+      .slice(0, 40);
     const filename = `${entry.type}_${slug}.md`;
     const filepath = join(this.memoryDir, filename);
 
@@ -123,7 +126,7 @@ class MemoryManager {
       (e) =>
         e.name.toLowerCase().includes(lower) ||
         e.description.toLowerCase().includes(lower) ||
-        e.body.toLowerCase().includes(lower)
+        e.body.toLowerCase().includes(lower),
     );
   }
 
@@ -231,7 +234,11 @@ function createMemoryTools(manager: MemoryManager): Tool[] {
       properties: {
         name: { type: 'string', description: '记忆名称（简短标题）' },
         description: { type: 'string', description: '一行描述（用于索引和搜索）' },
-        type: { type: 'string', description: '记忆类型: user(用户偏好), feedback(反馈纠正), project(项目决策), reference(外部资源)' },
+        type: {
+          type: 'string',
+          description:
+            '记忆类型: user(用户偏好), feedback(反馈纠正), project(项目决策), reference(外部资源)',
+        },
         body: { type: 'string', description: '记忆正文内容' },
       },
       required: ['name', 'description', 'type', 'body'],
@@ -272,7 +279,10 @@ function createMemoryTools(manager: MemoryManager): Tool[] {
     input_schema: {
       type: 'object',
       properties: {
-        type: { type: 'string', description: '按类型过滤: user, feedback, project, reference（不传则返回全部）' },
+        type: {
+          type: 'string',
+          description: '按类型过滤: user, feedback, project, reference（不传则返回全部）',
+        },
       },
     },
     execute: async (params) => {
@@ -298,9 +308,7 @@ function createMemoryTools(manager: MemoryManager): Tool[] {
     },
     execute: async (params) => {
       const deleted = await manager.delete(params.filename as string);
-      return deleted
-        ? `记忆已删除: ${params.filename}`
-        : `未找到记忆: ${params.filename}`;
+      return deleted ? `记忆已删除: ${params.filename}` : `未找到记忆: ${params.filename}`;
     },
   };
 
@@ -345,9 +353,7 @@ async function agentLoopWithMemory(userInput: string) {
   console.log(`👤 用户: ${userInput}\n`);
 
   const tools = createMemoryTools(manager);
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -434,9 +440,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 09: Memory System 示例 ===\n');
 
   await agentLoopWithMemory(
-    '请帮我记住以下信息：\n1. 我喜欢用 2 空格缩进\n2. 项目使用 Vitest 作为测试框架（团队讨论后决定的）\n3. Bug 追踪在 Linear 的 "BACKEND" 项目中\n然后列出所有已保存的记忆。'
+    '请帮我记住以下信息：\n1. 我喜欢用 2 空格缩进\n2. 项目使用 Vitest 作为测试框架（团队讨论后决定的）\n3. Bug 追踪在 Linear 的 "BACKEND" 项目中\n然后列出所有已保存的记忆。',
   );
 }
 
-export { agentLoopWithMemory, MemoryManager };
 export type { MemoryEntry, MemoryType };
+export { agentLoopWithMemory, MemoryManager };

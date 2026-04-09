@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { TeamManager } from '../../../capabilities/subagents/team-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createSpawnTeammateTool(manager: TeamManager): ToolDefinition {
   return {

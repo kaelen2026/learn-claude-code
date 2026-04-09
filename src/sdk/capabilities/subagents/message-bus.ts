@@ -1,5 +1,5 @@
 import type { MessageEnvelope } from '../../shared/types.js';
-import { InboxStore } from '../../stores/teams/inbox-store.js';
+import type { InboxStore } from '../../stores/teams/inbox-store.js';
 
 export class MessageBus {
   constructor(private readonly inboxStore: InboxStore) {}

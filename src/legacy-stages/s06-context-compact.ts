@@ -16,21 +16,21 @@
  * - 压缩后必须保留：当前任务、关键动作、修改文件、决定约束、下一步行动
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { writeFile, mkdir } from 'fs/promises';
+import type Anthropic from '@anthropic-ai/sdk';
+import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
 // ============ 配置参数 ============
 
-const CONTEXT_LIMIT = 50_000;         // 上下文字符上限，超过触发完整压缩
-const KEEP_RECENT_TOOL_RESULTS = 3;   // 微压缩时保留最近 N 个完整工具结果
-const PERSIST_THRESHOLD = 30_000;     // 工具输出超过此字符数则落盘
-const PREVIEW_CHARS = 2_000;          // 落盘后保留的预览字符数
+const CONTEXT_LIMIT = 50_000; // 上下文字符上限，超过触发完整压缩
+const KEEP_RECENT_TOOL_RESULTS = 3; // 微压缩时保留最近 N 个完整工具结果
+const PERSIST_THRESHOLD = 30_000; // 工具输出超过此字符数则落盘
+const PREVIEW_CHARS = 2_000; // 落盘后保留的预览字符数
 
 // ============ CompactState ============
 
@@ -57,7 +57,7 @@ class CompactState {
 async function persistLargeOutput(
   output: string,
   toolName: string,
-  state: CompactState
+  state: CompactState,
 ): Promise<string> {
   if (output.length <= PERSIST_THRESHOLD) {
     return output; // 不需要持久化
@@ -92,7 +92,7 @@ function microCompact(messages: Anthropic.MessageParam[]): {
     const msg = messages[i];
     if (msg.role === 'user' && Array.isArray(msg.content)) {
       const hasToolResult = msg.content.some(
-        (block) => typeof block === 'object' && 'type' in block && block.type === 'tool_result'
+        (block) => typeof block === 'object' && 'type' in block && block.type === 'tool_result',
       );
       if (hasToolResult) {
         toolResultIndices.push(i);
@@ -140,15 +140,14 @@ function microCompact(messages: Anthropic.MessageParam[]): {
  */
 async function summarizeHistory(
   messages: Anthropic.MessageParam[],
-  state: CompactState
+  _state: CompactState,
 ): Promise<string> {
   // 将消息历史转为文本
   const historyText = messages
     .map((msg) => {
       const role = msg.role === 'user' ? '用户' : '助手';
-      const content = typeof msg.content === 'string'
-        ? msg.content
-        : JSON.stringify(msg.content).slice(0, 500);
+      const content =
+        typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content).slice(0, 500);
       return `[${role}] ${content}`;
     })
     .join('\n\n');
@@ -187,7 +186,7 @@ ${historyText}
  */
 async function compactHistory(
   messages: Anthropic.MessageParam[],
-  state: CompactState
+  state: CompactState,
 ): Promise<Anthropic.MessageParam[]> {
   console.log('🗜️  触发完整压缩...\n');
 
@@ -217,9 +216,7 @@ async function compactHistory(
  */
 function estimateContextSize(messages: Anthropic.MessageParam[]): number {
   return messages.reduce((total, msg) => {
-    const content = typeof msg.content === 'string'
-      ? msg.content
-      : JSON.stringify(msg.content);
+    const content = typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content);
     return total + content.length;
   }, 0);
 }
@@ -247,7 +244,7 @@ const readLargeFileTool: Tool = {
     // 模拟大文件内容
     const lines = Array.from(
       { length: 500 },
-      (_, i) => `第 ${i + 1} 行: ${filename} 的内容 — ${'这是一段模拟的大文件数据。'.repeat(5)}`
+      (_, i) => `第 ${i + 1} 行: ${filename} 的内容 — ${'这是一段模拟的大文件数据。'.repeat(5)}`,
     );
     return lines.join('\n');
   },
@@ -310,9 +307,7 @@ async function agentLoopWithCompact(userInput: string) {
 
   const state = new CompactState(join(process.cwd(), '.compact-cache'));
 
-  let messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  let messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -414,7 +409,9 @@ async function agentLoopWithCompact(userInput: string) {
   console.log(`总循环数: ${loopCount}`);
   console.log(`是否触发过完整压缩: ${state.hasCompacted ? '是' : '否'}`);
   console.log(`最终上下文大小: ${estimateContextSize(messages)} 字符`);
-  console.log(`最近访问文件: ${state.recentFiles.length > 0 ? state.recentFiles.join(', ') : '无'}`);
+  console.log(
+    `最近访问文件: ${state.recentFiles.length > 0 ? state.recentFiles.join(', ') : '无'}`,
+  );
   if (state.lastSummary) {
     console.log(`最后摘要: ${state.lastSummary.slice(0, 200)}...`);
   }
@@ -425,8 +422,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 06: Context Compact 示例 ===\n');
 
   await agentLoopWithCompact(
-    '请帮我做以下操作来演示上下文压缩：\n1. 搜索 "handleRequest" 关键字\n2. 读取大文件 server.log\n3. 搜索 "parseConfig" 关键字\n4. 再读取大文件 database.log\n5. 搜索 "validateInput" 关键字\n最后总结你的发现。'
+    '请帮我做以下操作来演示上下文压缩：\n1. 搜索 "handleRequest" 关键字\n2. 读取大文件 server.log\n3. 搜索 "parseConfig" 关键字\n4. 再读取大文件 database.log\n5. 搜索 "validateInput" 关键字\n最后总结你的发现。',
   );
 }
 
-export { agentLoopWithCompact, CompactState, microCompact, compactHistory, estimateContextSize };
+export { agentLoopWithCompact, CompactState, compactHistory, estimateContextSize, microCompact };

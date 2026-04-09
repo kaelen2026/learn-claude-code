@@ -20,11 +20,9 @@
  * - 空闲轮询与超时
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { writeFile, readFile, mkdir, appendFile, readdir } from 'fs/promises';
 import { existsSync } from 'fs';
+import { appendFile, mkdir } from 'fs/promises';
 import { join } from 'path';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
 
@@ -37,7 +35,7 @@ interface AutoTask {
   subject: string;
   status: 'pending' | 'in_progress' | 'completed';
   owner: string;
-  claimRole: string;  // 需要的角色
+  claimRole: string; // 需要的角色
   blockedBy: number[];
 }
 
@@ -60,7 +58,7 @@ interface AutonomousAgent {
 class TaskBoard {
   private tasks = new Map<number, AutoTask>();
   private nextId = 1;
-  private claiming = false;  // 简单锁
+  private claiming = false; // 简单锁
   private eventsFile: string;
 
   constructor(private dir: string) {
@@ -72,7 +70,14 @@ class TaskBoard {
   }
 
   addTask(subject: string, claimRole: string, blockedBy: number[] = []): AutoTask {
-    const task: AutoTask = { id: this.nextId++, subject, status: 'pending', owner: '', claimRole, blockedBy };
+    const task: AutoTask = {
+      id: this.nextId++,
+      subject,
+      status: 'pending',
+      owner: '',
+      claimRole,
+      blockedBy,
+    };
     this.tasks.set(task.id, task);
     return task;
   }
@@ -80,7 +85,7 @@ class TaskBoard {
   /** 查找可认领的任务（Claimable Task Predicate） */
   findClaimable(role: string): AutoTask | undefined {
     return Array.from(this.tasks.values()).find(
-      (t) => t.status === 'pending' && !t.owner && t.blockedBy.length === 0 && t.claimRole === role
+      (t) => t.status === 'pending' && !t.owner && t.blockedBy.length === 0 && t.claimRole === role,
     );
   }
 
@@ -95,7 +100,7 @@ class TaskBoard {
       task.status = 'in_progress';
       // 记录事件
       const event: ClaimEvent = { event: 'task.claimed', taskId, owner, source, ts: Date.now() };
-      await appendFile(this.eventsFile, JSON.stringify(event) + '\n', 'utf-8');
+      await appendFile(this.eventsFile, `${JSON.stringify(event)}\n`, 'utf-8');
       return true;
     } finally {
       this.claiming = false;
@@ -122,7 +127,7 @@ class TaskBoard {
 async function autonomousAgentLoop(
   agent: AutonomousAgent,
   board: TaskBoard,
-  maxCycles: number = 3
+  maxCycles: number = 3,
 ): Promise<string[]> {
   const results: string[] = [];
   let idleCycles = 0;
@@ -159,7 +164,10 @@ async function autonomousAgentLoop(
       messages: [{ role: 'user', content: `完成任务: ${claimable.subject}` }],
     });
 
-    const result = response.content.filter((b) => b.type === 'text').map((b) => (b as { type: 'text'; text: string }).text).join('');
+    const result = response.content
+      .filter((b) => b.type === 'text')
+      .map((b) => (b as { type: 'text'; text: string }).text)
+      .join('');
     board.complete(claimable.id);
     agent.status = 'idle';
 
@@ -179,9 +187,9 @@ async function demo() {
 
   // 创建任务（带角色要求和依赖）
   const t1 = board.addTask('编写用户模型', 'coder');
-  const t2 = board.addTask('编写 API 路由', 'coder', [t1.id]);
-  const t3 = board.addTask('编写单元测试', 'tester');
-  const t4 = board.addTask('代码审查', 'reviewer', [t1.id]);
+  const _t2 = board.addTask('编写 API 路由', 'coder', [t1.id]);
+  const _t3 = board.addTask('编写单元测试', 'tester');
+  const _t4 = board.addTask('代码审查', 'reviewer', [t1.id]);
 
   console.log('📋 任务看板:');
   for (const t of board.list()) {
@@ -198,17 +206,21 @@ async function demo() {
   ];
 
   console.log('🤖 自主代理:');
-  agents.forEach((a) => console.log(`  ${a.name} (${a.role})`));
+  agents.forEach((a) => {
+    console.log(`  ${a.name} (${a.role})`);
+  });
   console.log();
 
   // 并行运行自主代理
   console.log('--- 第 1 轮自主执行 ---\n');
-  const round1 = await Promise.all(agents.map((a) => autonomousAgentLoop(a, board, 2)));
+  const _round1 = await Promise.all(agents.map((a) => autonomousAgentLoop(a, board, 2)));
 
   console.log('--- 第 2 轮自主执行（依赖解锁后）---\n');
   // 重置 agent 状态
-  agents.forEach((a) => { if (a.status === 'shutdown') a.status = 'idle'; });
-  const round2 = await Promise.all(agents.map((a) => autonomousAgentLoop(a, board, 2)));
+  agents.forEach((a) => {
+    if (a.status === 'shutdown') a.status = 'idle';
+  });
+  const _round2 = await Promise.all(agents.map((a) => autonomousAgentLoop(a, board, 2)));
 
   // 最终状态
   console.log('=== 最终任务状态 ===');
@@ -224,5 +236,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   await demo();
 }
 
+export type { AutonomousAgent, AutoTask, ClaimEvent };
 export { autonomousAgentLoop, TaskBoard };
-export type { AutoTask, AutonomousAgent, ClaimEvent };

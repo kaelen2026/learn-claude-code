@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { TaskManager } from '../../../capabilities/tasks/task-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createTaskListTool(manager: TaskManager): ToolDefinition {
   return {

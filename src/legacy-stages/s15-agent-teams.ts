@@ -15,13 +15,13 @@
  * - 团队配置持久化
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { writeFile, readFile, mkdir, appendFile } from 'fs/promises';
+import type Anthropic from '@anthropic-ai/sdk';
 import { existsSync } from 'fs';
+import { appendFile, mkdir, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -59,14 +59,18 @@ class MessageBus {
 
   async send(to: string, envelope: MessageEnvelope) {
     const file = join(this.inboxDir, `${to}.jsonl`);
-    await appendFile(file, JSON.stringify(envelope) + '\n', 'utf-8');
+    await appendFile(file, `${JSON.stringify(envelope)}\n`, 'utf-8');
   }
 
   async readInbox(name: string): Promise<MessageEnvelope[]> {
     const file = join(this.inboxDir, `${name}.jsonl`);
     if (!existsSync(file)) return [];
     const raw = await readFile(file, 'utf-8');
-    const messages = raw.trim().split('\n').filter(Boolean).map((l) => JSON.parse(l));
+    const messages = raw
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l));
     // 清空 inbox
     await writeFile(file, '', 'utf-8');
     return messages;
@@ -191,7 +195,11 @@ function createTeamTools(manager: TeammateManager): Tool[] {
         required: ['from', 'to', 'content'],
       },
       execute: async (params) => {
-        await manager.sendMessage(params.from as string, params.to as string, params.content as string);
+        await manager.sendMessage(
+          params.from as string,
+          params.to as string,
+          params.content as string,
+        );
         return `消息已发送: ${params.from} → ${params.to}`;
       },
     },
@@ -218,7 +226,11 @@ function createTeamTools(manager: TeammateManager): Tool[] {
       execute: async () => {
         const members = manager.listMembers();
         if (members.length === 0) return '团队为空';
-        return members.map((m) => `  ${m.status === 'working' ? '🔄' : '💤'} ${m.name} (${m.role}) - ${m.status}`).join('\n');
+        return members
+          .map(
+            (m) => `  ${m.status === 'working' ? '🔄' : '💤'} ${m.name} (${m.role}) - ${m.status}`,
+          )
+          .join('\n');
       },
     },
   ];
@@ -246,7 +258,11 @@ async function agentLoopWithTeam(userInput: string) {
 
   const tools = createTeamTools(manager);
   const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
-  const anthropicTools: Anthropic.Tool[] = tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.input_schema }));
+  const anthropicTools: Anthropic.Tool[] = tools.map((t) => ({
+    name: t.name,
+    description: t.description,
+    input_schema: t.input_schema,
+  }));
 
   let continueLoop = true;
   let loopCount = 0;
@@ -255,7 +271,13 @@ async function agentLoopWithTeam(userInput: string) {
     loopCount++;
     console.log(`🔄 循环 ${loopCount}...\n`);
 
-    const response = await client.messages.create({ model: appConfig.model, max_tokens: 4096, system: SYSTEM_PROMPT, messages, tools: anthropicTools });
+    const response = await client.messages.create({
+      model: appConfig.model,
+      max_tokens: 4096,
+      system: SYSTEM_PROMPT,
+      messages,
+      tools: anthropicTools,
+    });
     console.log(`📊 Stop reason: ${response.stop_reason}\n`);
     messages.push({ role: 'assistant', content: response.content });
 
@@ -280,8 +302,10 @@ async function agentLoopWithTeam(userInput: string) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 15: Agent Teams 示例 ===\n');
-  await agentLoopWithTeam('请组建一个 3 人小团队（coder、reviewer、tester），让 coder 写一个排序函数，reviewer 审查，tester 设计测试用例。');
+  await agentLoopWithTeam(
+    '请组建一个 3 人小团队（coder、reviewer、tester），让 coder 写一个排序函数，reviewer 审查，tester 设计测试用例。',
+  );
 }
 
-export { agentLoopWithTeam, TeammateManager, MessageBus };
-export type { TeamMember, MessageEnvelope };
+export type { MessageEnvelope, TeamMember };
+export { agentLoopWithTeam, MessageBus, TeammateManager };

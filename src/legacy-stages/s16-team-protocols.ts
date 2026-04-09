@@ -16,13 +16,13 @@
  * - 状态机管理
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { writeFile, readFile, mkdir, readdir } from 'fs/promises';
+import type Anthropic from '@anthropic-ai/sdk';
 import { existsSync } from 'fs';
+import { mkdir, readdir, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -64,9 +64,23 @@ class RequestStore {
     if (!existsSync(this.dir)) await mkdir(this.dir, { recursive: true });
   }
 
-  async create(kind: RequestKind, from: string, to: string, payload: Record<string, unknown>): Promise<RequestRecord> {
+  async create(
+    kind: RequestKind,
+    from: string,
+    to: string,
+    payload: Record<string, unknown>,
+  ): Promise<RequestRecord> {
     const id = `req_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-    const record: RequestRecord = { id, kind, status: 'pending', from, to, payload, createdAt: Date.now(), resolvedAt: null };
+    const record: RequestRecord = {
+      id,
+      kind,
+      status: 'pending',
+      from,
+      to,
+      payload,
+      createdAt: Date.now(),
+      resolvedAt: null,
+    };
     await writeFile(join(this.dir, `${id}.json`), JSON.stringify(record, null, 2), 'utf-8');
     return record;
   }
@@ -121,7 +135,7 @@ function createProtocolTools(store: RequestStore): Tool[] {
           params.kind as RequestKind,
           params.from as string,
           params.to as string,
-          { description: params.description }
+          { description: params.description },
         );
         return `请求已创建: ${record.id} [${record.kind}] ${record.from} → ${record.to} (${record.status})`;
       },
@@ -150,7 +164,9 @@ function createProtocolTools(store: RequestStore): Tool[] {
       execute: async () => {
         const pending = await store.listPending();
         if (pending.length === 0) return '没有待处理的请求';
-        return pending.map((r) => `  ⏳ ${r.id} [${r.kind}] ${r.from} → ${r.to}: ${JSON.stringify(r.payload)}`).join('\n');
+        return pending
+          .map((r) => `  ⏳ ${r.id} [${r.kind}] ${r.from} → ${r.to}: ${JSON.stringify(r.payload)}`)
+          .join('\n');
       },
     },
   ];
@@ -168,7 +184,11 @@ async function agentLoopWithProtocols(userInput: string) {
 
   const tools = createProtocolTools(store);
   const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
-  const anthropicTools: Anthropic.Tool[] = tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.input_schema }));
+  const anthropicTools: Anthropic.Tool[] = tools.map((t) => ({
+    name: t.name,
+    description: t.description,
+    input_schema: t.input_schema,
+  }));
 
   const SYSTEM_PROMPT = `你是团队协议管理器。工具：create_request（创建审批请求）、resolve_request（批准/拒绝）、list_requests（列出待处理请求）。
 
@@ -180,7 +200,13 @@ async function agentLoopWithProtocols(userInput: string) {
   while (continueLoop && loopCount < 10) {
     loopCount++;
     console.log(`🔄 循环 ${loopCount}...\n`);
-    const response = await client.messages.create({ model: appConfig.model, max_tokens: 4096, system: SYSTEM_PROMPT, messages, tools: anthropicTools });
+    const response = await client.messages.create({
+      model: appConfig.model,
+      max_tokens: 4096,
+      system: SYSTEM_PROMPT,
+      messages,
+      tools: anthropicTools,
+    });
     console.log(`📊 Stop reason: ${response.stop_reason}\n`);
     messages.push({ role: 'assistant', content: response.content });
 
@@ -206,9 +232,9 @@ async function agentLoopWithProtocols(userInput: string) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 16: Team Protocols 示例 ===\n');
   await agentLoopWithProtocols(
-    '请演示协议系统：\n1. 创建一个 plan_approval 请求（alice 请求 lead 审批数据库迁移方案）\n2. 创建一个 shutdown 请求（bob 请求 lead 批准关停测试服务器）\n3. 列出待处理请求\n4. 批准数据库迁移，拒绝关停请求\n5. 再次列出请求确认状态'
+    '请演示协议系统：\n1. 创建一个 plan_approval 请求（alice 请求 lead 审批数据库迁移方案）\n2. 创建一个 shutdown 请求（bob 请求 lead 批准关停测试服务器）\n3. 列出待处理请求\n4. 批准数据库迁移，拒绝关停请求\n5. 再次列出请求确认状态',
   );
 }
 
+export type { ProtocolEnvelope, RequestKind, RequestRecord, RequestStatus };
 export { agentLoopWithProtocols, RequestStore };
-export type { ProtocolEnvelope, RequestRecord, RequestKind, RequestStatus };

@@ -1,15 +1,15 @@
-import { mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
+import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import type { WorktreeRecord } from '../../shared/types.js';
-import { WorktreeStore } from '../../stores/worktrees/worktree-store.js';
+import type { WorktreeStore } from '../../stores/worktrees/worktree-store.js';
 import { applyCloseout } from './closeout-policy.js';
 import { routeCommandToWorktree } from './workspace-router.js';
 
 export class WorktreeManager {
   constructor(
     private readonly store: WorktreeStore,
-    private readonly baseDir: string
+    private readonly baseDir: string,
   ) {}
 
   async create(name: string, taskId: number | null): Promise<WorktreeRecord> {

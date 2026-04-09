@@ -1,8 +1,8 @@
-import { readdir } from 'fs/promises';
 import { existsSync } from 'fs';
+import { readdir } from 'fs/promises';
 import { join } from 'path';
-import type { TaskRecord } from './task-record.js';
 import { readJsonFile, writeJsonFile } from '../fs/json-store.js';
+import type { TaskRecord } from './task-record.js';
 
 export class TaskStore {
   constructor(private readonly tasksDir: string) {}

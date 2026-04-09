@@ -20,10 +20,10 @@
  * - 续写提示设计
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import type { Tool } from '../core/types.js';
+import type Anthropic from '@anthropic-ai/sdk';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -53,7 +53,7 @@ const MAX_BACKOFF_MS = 30_000;
  */
 function selectRecovery(
   error: { stopReason?: string; errorMessage?: string },
-  state: RecoveryState
+  state: RecoveryState,
 ): RecoveryDecision {
   // 路径 1：输出被截断（max_tokens）
   if (error.stopReason === 'max_tokens') {
@@ -65,7 +65,11 @@ function selectRecovery(
 
   // 路径 2：上下文过长
   const msg = (error.errorMessage || '').toLowerCase();
-  if (msg.includes('prompt') && msg.includes('long') || msg.includes('context_length') || msg.includes('too many tokens')) {
+  if (
+    (msg.includes('prompt') && msg.includes('long')) ||
+    msg.includes('context_length') ||
+    msg.includes('too many tokens')
+  ) {
     if (state.compactAttempts >= MAX_COMPACT) {
       return { kind: 'fail', reason: `压缩次数已达上限 (${MAX_COMPACT})` };
     }
@@ -73,8 +77,14 @@ function selectRecovery(
   }
 
   // 路径 3：临时连接问题
-  if (msg.includes('timeout') || msg.includes('rate') || msg.includes('connection') ||
-      msg.includes('429') || msg.includes('503') || msg.includes('overloaded')) {
+  if (
+    msg.includes('timeout') ||
+    msg.includes('rate') ||
+    msg.includes('connection') ||
+    msg.includes('429') ||
+    msg.includes('503') ||
+    msg.includes('overloaded')
+  ) {
     if (state.transportAttempts >= MAX_TRANSPORT_RETRY) {
       return { kind: 'fail', reason: `重试次数已达上限 (${MAX_TRANSPORT_RETRY})` };
     }
@@ -82,7 +92,10 @@ function selectRecovery(
   }
 
   // 无法识别的错误
-  return { kind: 'fail', reason: `无法恢复的错误: ${error.errorMessage || error.stopReason || '未知'}` };
+  return {
+    kind: 'fail',
+    reason: `无法恢复的错误: ${error.errorMessage || error.stopReason || '未知'}`,
+  };
 }
 
 // ============ 恢复操作 ============
@@ -103,15 +116,16 @@ function injectContinuation(messages: Anthropic.MessageParam[]): Anthropic.Messa
 /**
  * 压缩恢复：用 Claude 生成摘要，重建上下文
  */
-async function compactForRecovery(messages: Anthropic.MessageParam[]): Promise<Anthropic.MessageParam[]> {
+async function compactForRecovery(
+  messages: Anthropic.MessageParam[],
+): Promise<Anthropic.MessageParam[]> {
   console.log('  🗜️  执行压缩恢复...');
 
   const historyText = messages
     .map((msg) => {
       const role = msg.role === 'user' ? '用户' : '助手';
-      const content = typeof msg.content === 'string'
-        ? msg.content
-        : JSON.stringify(msg.content).slice(0, 300);
+      const content =
+        typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content).slice(0, 300);
       return `[${role}] ${content}`;
     })
     .join('\n');
@@ -119,10 +133,12 @@ async function compactForRecovery(messages: Anthropic.MessageParam[]): Promise<A
   const response = await client.messages.create({
     model: appConfig.model,
     max_tokens: 1024,
-    messages: [{
-      role: 'user',
-      content: `将以下对话压缩为摘要，保留：\n1. 任务概览与成功标准\n2. 已完成工作与涉及文件\n3. 关键决定与失败尝试\n4. 剩余步骤\n\n${historyText}\n\n输出压缩摘要：`,
-    }],
+    messages: [
+      {
+        role: 'user',
+        content: `将以下对话压缩为摘要，保留：\n1. 任务概览与成功标准\n2. 已完成工作与涉及文件\n3. 关键决定与失败尝试\n4. 剩余步骤\n\n${historyText}\n\n输出压缩摘要：`,
+      },
+    ],
   });
 
   const summary = response.content
@@ -148,7 +164,7 @@ async function compactForRecovery(messages: Anthropic.MessageParam[]): Promise<A
  * 退避重试：指数退避 + 随机抖动
  */
 async function backoff(attempt: number): Promise<void> {
-  const delay = Math.min(BASE_BACKOFF_MS * Math.pow(2, attempt), MAX_BACKOFF_MS) + Math.random() * 1000;
+  const delay = Math.min(BASE_BACKOFF_MS * 2 ** attempt, MAX_BACKOFF_MS) + Math.random() * 1000;
   console.log(`  ⏳ 退避等待 ${Math.round(delay)}ms (第 ${attempt + 1} 次重试)...\n`);
   await new Promise((resolve) => setTimeout(resolve, delay));
 }
@@ -208,9 +224,7 @@ async function agentLoopWithRecovery(userInput: string) {
     transportAttempts: 0,
   };
 
-  let messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  let messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -343,7 +357,11 @@ async function agentLoopWithRecovery(userInput: string) {
 function demoRecoverySelector() {
   console.log('--- 恢复选择器演示 ---\n');
 
-  const state: RecoveryState = { continuationAttempts: 0, compactAttempts: 0, transportAttempts: 0 };
+  const state: RecoveryState = {
+    continuationAttempts: 0,
+    compactAttempts: 0,
+    transportAttempts: 0,
+  };
 
   const scenarios = [
     { error: { stopReason: 'max_tokens' }, label: '输出截断 (max_tokens)' },
@@ -372,9 +390,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   // 再运行代理循环
   await agentLoopWithRecovery(
-    '请读取 src/server.ts 文件，分析其中的路由结构，然后写一个新的路由处理函数到 src/routes.ts。'
+    '请读取 src/server.ts 文件，分析其中的路由结构，然后写一个新的路由处理函数到 src/routes.ts。',
   );
 }
 
-export { agentLoopWithRecovery, selectRecovery, backoff };
-export type { RecoveryState, RecoveryDecision };
+export type { RecoveryDecision, RecoveryState };
+export { agentLoopWithRecovery, backoff, selectRecovery };

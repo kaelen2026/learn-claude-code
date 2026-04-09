@@ -1,7 +1,7 @@
-import { readdir } from 'fs/promises';
 import { existsSync } from 'fs';
-import type { ToolDefinition } from '../../../shared/types.js';
+import { readdir } from 'fs/promises';
 import { resolveWorkspacePath } from '../../../shared/path-safety.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createListFilesTool(workspaceRoot: string): ToolDefinition {
   return {

@@ -23,13 +23,13 @@
  * - 配置管理与优先级链
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { readFile, readdir } from 'fs/promises';
+import type Anthropic from '@anthropic-ai/sdk';
 import { existsSync } from 'fs';
+import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -45,12 +45,14 @@ class SystemPromptBuilder {
   private memoryDir: string;
   private projectDir: string;
 
-  constructor(options: {
-    tools?: Tool[];
-    skillsDir?: string;
-    memoryDir?: string;
-    projectDir?: string;
-  } = {}) {
+  constructor(
+    options: {
+      tools?: Tool[];
+      skillsDir?: string;
+      memoryDir?: string;
+      projectDir?: string;
+    } = {},
+  ) {
     this.tools = options.tools || [];
     this.skillsDir = options.skillsDir || join(process.cwd(), 'skills');
     this.memoryDir = options.memoryDir || join(process.cwd(), '.memory');
@@ -75,9 +77,7 @@ class SystemPromptBuilder {
   private buildToolListing(): string {
     if (this.tools.length === 0) return '';
 
-    const toolDescriptions = this.tools
-      .map((t) => `- **${t.name}**: ${t.description}`)
-      .join('\n');
+    const toolDescriptions = this.tools.map((t) => `- **${t.name}**: ${t.description}`).join('\n');
 
     return `# 可用工具
 
@@ -153,9 +153,9 @@ ${entries.join('\n')}`;
   /** 段 5：CLAUDE.md 指令链（用户全局 → 项目 → 子目录） */
   private async buildClaudeMd(): Promise<string> {
     const paths = [
-      join(process.env.HOME || '~', '.claude', 'CLAUDE.md'),  // 用户全局
-      join(this.projectDir, 'CLAUDE.md'),                      // 项目根目录
-      join(this.projectDir, '.claude', 'CLAUDE.md'),           // 项目 .claude 目录
+      join(process.env.HOME || '~', '.claude', 'CLAUDE.md'), // 用户全局
+      join(this.projectDir, 'CLAUDE.md'), // 项目根目录
+      join(this.projectDir, '.claude', 'CLAUDE.md'), // 项目 .claude 目录
     ];
 
     const sections: string[] = [];
@@ -217,8 +217,7 @@ ${entries.join('\n')}`;
 
   /** 构建 system reminder（临时补充上下文） */
   buildReminder(context: Record<string, string>): string {
-    const lines = Object.entries(context)
-      .map(([key, value]) => `- ${key}: ${value}`);
+    const lines = Object.entries(context).map(([key, value]) => `- ${key}: ${value}`);
     return `<system-reminder>\n${lines.join('\n')}\n</system-reminder>`;
   }
 }
@@ -320,8 +319,8 @@ async function agentLoopWithSystemPrompt(userInput: string) {
 
   // 展示 system reminder 示例
   const reminder = builder.buildReminder({
-    '当前分支': 'feature/add-auth',
-    '未提交文件': 'src/auth.ts, src/middleware.ts',
+    当前分支: 'feature/add-auth',
+    未提交文件: 'src/auth.ts, src/middleware.ts',
     'CI 状态': '通过',
   });
   console.log('=== System Reminder 示例 ===\n');
@@ -331,9 +330,7 @@ async function agentLoopWithSystemPrompt(userInput: string) {
   // 运行代理循环
   console.log(`👤 用户: ${userInput}\n`);
 
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -405,9 +402,7 @@ async function agentLoopWithSystemPrompt(userInput: string) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 10: System Prompt 示例 ===\n');
 
-  await agentLoopWithSystemPrompt(
-    '请读取 package.json 文件，然后告诉我这个项目用了哪些依赖。'
-  );
+  await agentLoopWithSystemPrompt('请读取 package.json 文件，然后告诉我这个项目用了哪些依赖。');
 }
 
-export { SystemPromptBuilder, DYNAMIC_BOUNDARY };
+export { DYNAMIC_BOUNDARY, SystemPromptBuilder };

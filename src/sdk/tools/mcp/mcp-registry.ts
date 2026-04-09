@@ -1,5 +1,5 @@
 import type { ToolDefinition } from '../../shared/types.js';
-import { MCPClient } from './mcp-client.js';
+import type { MCPClient } from './mcp-client.js';
 
 export class MCPRegistry {
   private readonly clients = new Map<string, MCPClient>();

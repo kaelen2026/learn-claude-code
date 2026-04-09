@@ -14,12 +14,12 @@
  * - 工具调用循环（可能需要多次调用）
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { readFile, writeFile } from 'fs/promises';
+import type Anthropic from '@anthropic-ai/sdk';
 import { existsSync } from 'fs';
-import type { Tool } from '../core/types.js';
+import { readFile, writeFile } from 'fs/promises';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -172,7 +172,9 @@ async function agentLoopWithTools(userInput: string) {
     // 如果有工具结果，添加到消息历史
     if (toolResults.length > 0) {
       // 合并所有工具结果到一条消息
-      const allToolResults = toolResults.flatMap((msg) => msg.content as Anthropic.ToolResultBlockParam[]);
+      const allToolResults = toolResults.flatMap(
+        (msg) => msg.content as Anthropic.ToolResultBlockParam[],
+      );
       messages.push({
         role: 'user',
         content: allToolResults,
@@ -199,7 +201,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 02: Tool Use 示例 ===\n');
 
   await agentLoopWithTools(
-    '请创建一个名为 test.txt 的文件，内容是 "Hello from Claude!"，然后读取这个文件确认内容'
+    '请创建一个名为 test.txt 的文件，内容是 "Hello from Claude!"，然后读取这个文件确认内容',
   );
 }
 

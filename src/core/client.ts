@@ -31,10 +31,7 @@ import { appConfig, validateConfig } from './config.js';
  * });
  * ```
  */
-export function createAnthropicClient(options?: {
-  apiKey?: string;
-  baseURL?: string;
-}): Anthropic {
+export function createAnthropicClient(options?: { apiKey?: string; baseURL?: string }): Anthropic {
   // 认证凭证优先级：参数 > 配置文件
   const apiKey = options?.apiKey || appConfig.apiKey;
   const baseURL = options?.baseURL || appConfig.baseURL;

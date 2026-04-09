@@ -1,5 +1,5 @@
-import { readFile, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
+import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import type { TeamMemberRecord } from './member-record.js';
 

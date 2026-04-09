@@ -1,53 +1,53 @@
-import type { ToolDefinition } from '../shared/types.js';
-import { createReadFileTool } from './native/fs/read-file.js';
-import { createListFilesTool } from './native/fs/list-files.js';
-import { MemoryManager } from '../capabilities/memory/memory-manager.js';
-import { MemoryStore } from '../stores/memory/memory-store.js';
-import { TaskStore } from '../stores/tasks/task-store.js';
-import { TaskManager } from '../capabilities/tasks/task-manager.js';
 import { AutonomousController } from '../capabilities/autonomy/autonomous-controller.js';
+import { BackgroundManager } from '../capabilities/background/background-manager.js';
+import { NotificationQueue } from '../capabilities/background/notification-queue.js';
+import type { HookHandler } from '../capabilities/hooks/hook-registry.js';
+import { HookRegistry } from '../capabilities/hooks/hook-registry.js';
+import { HookRunner } from '../capabilities/hooks/hook-runner.js';
+import { MemoryManager } from '../capabilities/memory/memory-manager.js';
+import { PermissionGate } from '../capabilities/permissions/permission-gate.js';
+import { ScheduleManager } from '../capabilities/scheduling/schedule-manager.js';
+import { MessageBus } from '../capabilities/subagents/message-bus.js';
+import { SubagentManager } from '../capabilities/subagents/subagent-manager.js';
+import { TeamManager } from '../capabilities/subagents/team-manager.js';
+import { TaskManager } from '../capabilities/tasks/task-manager.js';
+import { WorktreeManager } from '../capabilities/worktrees/worktree-manager.js';
+import type { ToolDefinition } from '../shared/types.js';
+import { RuntimeTaskStore } from '../stores/background/runtime-task-store.js';
+import { MemoryStore } from '../stores/memory/memory-store.js';
+import { ScheduleStore } from '../stores/schedules/schedule-store.js';
+import { TaskStore } from '../stores/tasks/task-store.js';
+import { InboxStore } from '../stores/teams/inbox-store.js';
+import { TeamStore } from '../stores/teams/team-store.js';
+import { WorktreeStore } from '../stores/worktrees/worktree-store.js';
+import { MCPClient } from './mcp/mcp-client.js';
+import { MCPRegistry } from './mcp/mcp-registry.js';
+import { createAssignWorkTool } from './native/agent/assign-work.js';
+import { createListSubagentResultsTool } from './native/agent/list-results.js';
+import { createListTeamTool } from './native/agent/list-team.js';
+import { createSendMessageTool } from './native/agent/send-message.js';
+import { createSpawnSubagentTool } from './native/agent/spawn-subagent.js';
+import { createSpawnTeammateTool } from './native/agent/spawn-teammate.js';
+import { createListFilesTool } from './native/fs/list-files.js';
+import { createReadFileTool } from './native/fs/read-file.js';
+import { createDeleteMemoryTool } from './native/memory/delete-memory.js';
+import { createListMemoriesTool } from './native/memory/list-memories.js';
 import { createSaveMemoryTool } from './native/memory/save-memory.js';
 import { createSearchMemoryTool } from './native/memory/search-memory.js';
-import { createListMemoriesTool } from './native/memory/list-memories.js';
-import { createDeleteMemoryTool } from './native/memory/delete-memory.js';
-import { createTaskCreateTool } from './native/task/task-create.js';
-import { createTaskUpdateTool } from './native/task/task-update.js';
-import { createTaskGetTool } from './native/task/task-get.js';
-import { createTaskListTool } from './native/task/task-list.js';
-import { RuntimeTaskStore } from '../stores/background/runtime-task-store.js';
-import { NotificationQueue } from '../capabilities/background/notification-queue.js';
-import { BackgroundManager } from '../capabilities/background/background-manager.js';
-import { createBackgroundRunTool } from './native/shell/background-run.js';
-import { createCheckBackgroundTool } from './native/shell/check-background.js';
-import { createBashTool } from './native/shell/bash.js';
-import { ScheduleStore } from '../stores/schedules/schedule-store.js';
-import { ScheduleManager } from '../capabilities/scheduling/schedule-manager.js';
 import { createCronCreateTool } from './native/schedule/cron-create.js';
 import { createCronDeleteTool } from './native/schedule/cron-delete.js';
 import { createCronListTool } from './native/schedule/cron-list.js';
-import { PermissionGate } from '../capabilities/permissions/permission-gate.js';
-import { HookRegistry } from '../capabilities/hooks/hook-registry.js';
-import { HookRunner } from '../capabilities/hooks/hook-runner.js';
-import type { HookHandler } from '../capabilities/hooks/hook-registry.js';
-import { TeamStore } from '../stores/teams/team-store.js';
-import { InboxStore } from '../stores/teams/inbox-store.js';
-import { MessageBus } from '../capabilities/subagents/message-bus.js';
-import { TeamManager } from '../capabilities/subagents/team-manager.js';
-import { SubagentManager } from '../capabilities/subagents/subagent-manager.js';
-import { createSpawnSubagentTool } from './native/agent/spawn-subagent.js';
-import { createListSubagentResultsTool } from './native/agent/list-results.js';
-import { createSpawnTeammateTool } from './native/agent/spawn-teammate.js';
-import { createSendMessageTool } from './native/agent/send-message.js';
-import { createAssignWorkTool } from './native/agent/assign-work.js';
-import { createListTeamTool } from './native/agent/list-team.js';
-import { WorktreeStore } from '../stores/worktrees/worktree-store.js';
-import { WorktreeManager } from '../capabilities/worktrees/worktree-manager.js';
+import { createBackgroundRunTool } from './native/shell/background-run.js';
+import { createBashTool } from './native/shell/bash.js';
+import { createCheckBackgroundTool } from './native/shell/check-background.js';
+import { createTaskCreateTool } from './native/task/task-create.js';
+import { createTaskGetTool } from './native/task/task-get.js';
+import { createTaskListTool } from './native/task/task-list.js';
+import { createTaskUpdateTool } from './native/task/task-update.js';
+import { createCloseoutWorktreeTool } from './native/worktree/closeout-worktree.js';
 import { createCreateWorktreeTool } from './native/worktree/create-worktree.js';
 import { createEnterWorktreeTool } from './native/worktree/enter-worktree.js';
 import { createRunInWorktreeTool } from './native/worktree/run-in-worktree.js';
-import { createCloseoutWorktreeTool } from './native/worktree/closeout-worktree.js';
-import { MCPRegistry } from './mcp/mcp-registry.js';
-import { MCPClient } from './mcp/mcp-client.js';
 
 export class ToolRegistry {
   private readonly tools = new Map<string, ToolDefinition>();
@@ -88,9 +88,7 @@ export async function createDefaultToolRegistry(input: {
   registry.register(createReadFileTool(input.workspaceRoot));
   registry.register(createListFilesTool(input.workspaceRoot));
 
-  const memoryManager = new MemoryManager(
-    new MemoryStore(input.memoryDir, input.memoryEntriesDir)
-  );
+  const memoryManager = new MemoryManager(new MemoryStore(input.memoryDir, input.memoryEntriesDir));
   registry.register(createSaveMemoryTool(memoryManager));
   registry.register(createSearchMemoryTool(memoryManager));
   registry.register(createListMemoriesTool(memoryManager));
@@ -108,7 +106,7 @@ export async function createDefaultToolRegistry(input: {
   const backgroundManager = new BackgroundManager(
     new RuntimeTaskStore(input.backgroundTasksDir),
     input.backgroundOutputDir,
-    backgroundQueue
+    backgroundQueue,
   );
   await backgroundManager.init();
   registry.register(createBackgroundRunTool(backgroundManager));
@@ -116,10 +114,7 @@ export async function createDefaultToolRegistry(input: {
   registry.register(createBashTool());
 
   const scheduleQueue = new NotificationQueue();
-  const scheduleManager = new ScheduleManager(
-    new ScheduleStore(input.schedulesDir),
-    scheduleQueue
-  );
+  const scheduleManager = new ScheduleManager(new ScheduleStore(input.schedulesDir), scheduleQueue);
   await scheduleManager.init();
   registry.register(createCronCreateTool(scheduleManager));
   registry.register(createCronDeleteTool(scheduleManager));
@@ -131,7 +126,7 @@ export async function createDefaultToolRegistry(input: {
 
   const teamManager = new TeamManager(
     new TeamStore(input.teamsDir),
-    new MessageBus(new InboxStore(input.teamsInboxDir))
+    new MessageBus(new InboxStore(input.teamsInboxDir)),
   );
   registry.register(createSpawnTeammateTool(teamManager));
   registry.register(createSendMessageTool(teamManager));
@@ -140,7 +135,7 @@ export async function createDefaultToolRegistry(input: {
 
   const worktreeManager = new WorktreeManager(
     new WorktreeStore(input.worktreesDir),
-    input.worktreesDir
+    input.worktreesDir,
   );
   registry.register(createCreateWorktreeTool(worktreeManager));
   registry.register(createEnterWorktreeTool(worktreeManager));

@@ -1,7 +1,10 @@
-import { createWorkspaceStore } from '../../sdk/stores/workspace-store.js';
-import { ScheduleStore } from '../../sdk/stores/schedules/schedule-store.js';
-import { ScheduleManager, formatSchedule } from '../../sdk/capabilities/scheduling/schedule-manager.js';
 import { NotificationQueue } from '../../sdk/capabilities/background/notification-queue.js';
+import {
+  formatSchedule,
+  ScheduleManager,
+} from '../../sdk/capabilities/scheduling/schedule-manager.js';
+import { ScheduleStore } from '../../sdk/stores/schedules/schedule-store.js';
+import { createWorkspaceStore } from '../../sdk/stores/workspace-store.js';
 
 export async function runScheduleCommand(argv: string[]) {
   const [subcommand = 'list', ...rest] = argv;
@@ -10,7 +13,7 @@ export async function runScheduleCommand(argv: string[]) {
 
   const manager = new ScheduleManager(
     new ScheduleStore(workspaceStore.paths.schedulesDir),
-    new NotificationQueue()
+    new NotificationQueue(),
   );
   await manager.init();
 
@@ -30,7 +33,9 @@ export async function runScheduleCommand(argv: string[]) {
       const [cron, ...promptParts] = rest;
       const prompt = promptParts.join(' ').trim();
       if (!cron || !prompt) {
-        console.error('请提供 cron 和 prompt，例如: npm start -- schedule create "*/5 * * * *" "提醒我检查测试结果"');
+        console.error(
+          '请提供 cron 和 prompt，例如: npm start -- schedule create "*/5 * * * *" "提醒我检查测试结果"',
+        );
         process.exitCode = 1;
         return;
       }

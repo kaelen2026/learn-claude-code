@@ -18,12 +18,12 @@
  * - 动态注入上下文
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import type Anthropic from '@anthropic-ai/sdk';
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -167,7 +167,10 @@ function createTools(registry: SkillRegistry): Tool[] {
       const name = params.name as string;
       const doc = await registry.load(name);
       if (!doc) {
-        const available = registry.getManifests().map((m) => m.name).join(', ');
+        const available = registry
+          .getManifests()
+          .map((m) => m.name)
+          .join(', ');
         return `错误: 技能 "${name}" 不存在。可用技能: ${available}`;
       }
       return `=== 技能已加载: ${doc.manifest.name} ===\n\n${doc.body}`;
@@ -212,13 +215,13 @@ async function agentLoopWithSkills(userInput: string) {
   const registry = new SkillRegistry(skillsDir);
   const manifests = await registry.discover();
   console.log(`📦 发现 ${manifests.length} 个技能:`);
-  manifests.forEach((m) => console.log(`   - ${m.name}: ${m.description}`));
+  manifests.forEach((m) => {
+    console.log(`   - ${m.name}: ${m.description}`);
+  });
   console.log();
 
   const tools = createTools(registry);
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   let continueLoop = true;
   let loopCount = 0;
@@ -303,10 +306,8 @@ async function agentLoopWithSkills(userInput: string) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 05: Skill Loading 示例 ===\n');
 
-  await agentLoopWithSkills(
-    '请帮我计算 (15 + 27) * 3 - 18 / 2 的结果，并告诉我今天是星期几。'
-  );
+  await agentLoopWithSkills('请帮我计算 (15 + 27) * 3 - 18 / 2 的结果，并告诉我今天是星期几。');
 }
 
+export type { SkillDocument, SkillManifest };
 export { agentLoopWithSkills, SkillRegistry };
-export type { SkillManifest, SkillDocument };

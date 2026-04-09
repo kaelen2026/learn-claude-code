@@ -1,8 +1,8 @@
 import type Anthropic from '@anthropic-ai/sdk';
+import type { HookRunner } from '../capabilities/hooks/hook-runner.js';
+import type { PermissionGate } from '../capabilities/permissions/permission-gate.js';
 import type { ToolDefinition } from '../shared/types.js';
 import { executeToolWithGuards } from './tool-executor.js';
-import type { PermissionGate } from '../capabilities/permissions/permission-gate.js';
-import type { HookRunner } from '../capabilities/hooks/hook-runner.js';
 
 export async function executeToolCall(
   tools: ToolDefinition[],
@@ -10,7 +10,7 @@ export async function executeToolCall(
   options: {
     permissionGate?: PermissionGate;
     hookRunner?: HookRunner;
-  } = {}
+  } = {},
 ): Promise<import('./tool-executor.js').ToolExecutionOutcome> {
   const tool = tools.find((item) => item.name === block.name);
 

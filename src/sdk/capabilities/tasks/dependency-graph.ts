@@ -4,7 +4,7 @@ import type { TaskStore } from '../../stores/tasks/task-store.js';
 export async function addTaskDependencies(
   store: TaskStore,
   task: TaskRecord,
-  blockerIds: number[]
+  blockerIds: number[],
 ): Promise<TaskRecord> {
   for (const blockerId of blockerIds) {
     const blocker = await store.get(blockerId);
@@ -24,10 +24,7 @@ export async function addTaskDependencies(
   return task;
 }
 
-export async function unlockTaskDependents(
-  store: TaskStore,
-  task: TaskRecord
-): Promise<void> {
+export async function unlockTaskDependents(store: TaskStore, task: TaskRecord): Promise<void> {
   for (const dependentId of task.blocks) {
     const dependent = await store.get(dependentId);
     if (!dependent) continue;

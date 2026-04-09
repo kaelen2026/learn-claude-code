@@ -1,5 +1,5 @@
-import type { TaskStatus, ToolDefinition } from '../../../shared/types.js';
 import { formatTask, type TaskManager } from '../../../capabilities/tasks/task-manager.js';
+import type { TaskStatus, ToolDefinition } from '../../../shared/types.js';
 
 const VALID_STATUSES: TaskStatus[] = ['pending', 'in_progress', 'completed', 'deleted'];
 
@@ -30,13 +30,10 @@ export function createTaskUpdateTool(manager: TaskManager): ToolDefinition {
           new Set(
             input.blockedBy
               .map((value) => Number(value))
-              .filter((value) => Number.isInteger(value) && value > 0 && value !== id)
-          )
+              .filter((value) => Number.isInteger(value) && value > 0 && value !== id),
+          ),
         );
-        await manager.addBlockedBy(
-          id,
-          blockers
-        );
+        await manager.addBlockedBy(id, blockers);
       }
 
       const updates: {

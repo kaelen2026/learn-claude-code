@@ -1,11 +1,11 @@
 import type { MessageEnvelope, TeamMemberRecord } from '../../shared/types.js';
-import { TeamStore } from '../../stores/teams/team-store.js';
-import { MessageBus } from './message-bus.js';
+import type { TeamStore } from '../../stores/teams/team-store.js';
+import type { MessageBus } from './message-bus.js';
 
 export class TeamManager {
   constructor(
     private readonly teamStore: TeamStore,
-    private readonly bus: MessageBus
+    private readonly bus: MessageBus,
   ) {}
 
   async spawn(name: string, role: string): Promise<TeamMemberRecord> {
@@ -41,9 +41,10 @@ export class TeamManager {
     await this.teamStore.saveAll(members);
 
     const messages = await this.bus.readInbox(name);
-    const context = messages.length > 0
-      ? messages.map((message) => `[来自 ${message.from}]: ${message.content}`).join('\n')
-      : '';
+    const context =
+      messages.length > 0
+        ? messages.map((message) => `[来自 ${message.from}]: ${message.content}`).join('\n')
+        : '';
 
     const result = context
       ? `${name}(${member.role}) 完成任务: ${task}\n上下文:\n${context}`

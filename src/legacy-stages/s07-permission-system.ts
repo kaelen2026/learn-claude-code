@@ -20,11 +20,10 @@
  * - 中间件设计
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import * as readline from 'readline';
-import type { Tool } from '../core/types.js';
+import type Anthropic from '@anthropic-ai/sdk';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -33,10 +32,10 @@ const client = createAnthropicClient();
 type PermissionBehavior = 'allow' | 'deny' | 'ask';
 
 interface PermissionRule {
-  tool: string;           // 工具名，支持通配符 "*"
+  tool: string; // 工具名，支持通配符 "*"
   behavior: PermissionBehavior;
-  path?: string;          // 可选：路径匹配
-  content?: string;       // 可选：内容匹配
+  path?: string; // 可选：路径匹配
+  content?: string; // 可选：内容匹配
 }
 
 interface PermissionDecision {
@@ -56,22 +55,22 @@ interface SecurityFlag {
 
 class BashSecurityValidator {
   private static readonly DANGEROUS_PATTERNS: SecurityFlag[] = [
-    { pattern: 'sudo',            severity: 'critical', description: '权限提升' },
-    { pattern: 'rm -rf',          severity: 'critical', description: '递归删除' },
-    { pattern: 'rm -r',           severity: 'critical', description: '递归删除' },
-    { pattern: '> /dev/',         severity: 'critical', description: '设备写入' },
-    { pattern: 'mkfs',            severity: 'critical', description: '格式化文件系统' },
-    { pattern: 'dd if=',          severity: 'critical', description: '磁盘直接写入' },
-    { pattern: ':(){ :|:& };:',   severity: 'critical', description: 'Fork bomb' },
+    { pattern: 'sudo', severity: 'critical', description: '权限提升' },
+    { pattern: 'rm -rf', severity: 'critical', description: '递归删除' },
+    { pattern: 'rm -r', severity: 'critical', description: '递归删除' },
+    { pattern: '> /dev/', severity: 'critical', description: '设备写入' },
+    { pattern: 'mkfs', severity: 'critical', description: '格式化文件系统' },
+    { pattern: 'dd if=', severity: 'critical', description: '磁盘直接写入' },
+    { pattern: ':(){ :|:& };:', severity: 'critical', description: 'Fork bomb' },
   ];
 
   private static readonly SHELL_METACHAR_PATTERNS: SecurityFlag[] = [
-    { pattern: ';',    severity: 'warning', description: '命令链接' },
-    { pattern: '&&',   severity: 'warning', description: '条件执行' },
-    { pattern: '||',   severity: 'warning', description: '条件执行' },
-    { pattern: '|',    severity: 'warning', description: '管道' },
-    { pattern: '$(',   severity: 'warning', description: '命令替换' },
-    { pattern: '`',    severity: 'warning', description: '命令替换（反引号）' },
+    { pattern: ';', severity: 'warning', description: '命令链接' },
+    { pattern: '&&', severity: 'warning', description: '条件执行' },
+    { pattern: '||', severity: 'warning', description: '条件执行' },
+    { pattern: '|', severity: 'warning', description: '管道' },
+    { pattern: '$(', severity: 'warning', description: '命令替换' },
+    { pattern: '`', severity: 'warning', description: '命令替换（反引号）' },
   ];
 
   /**
@@ -80,13 +79,13 @@ class BashSecurityValidator {
   static validate(command: string): { safe: boolean; flags: SecurityFlag[] } {
     const flags: SecurityFlag[] = [];
 
-    for (const pattern of this.DANGEROUS_PATTERNS) {
+    for (const pattern of BashSecurityValidator.DANGEROUS_PATTERNS) {
       if (command.includes(pattern.pattern)) {
         flags.push(pattern);
       }
     }
 
-    for (const pattern of this.SHELL_METACHAR_PATTERNS) {
+    for (const pattern of BashSecurityValidator.SHELL_METACHAR_PATTERNS) {
       if (command.includes(pattern.pattern)) {
         flags.push(pattern);
       }
@@ -183,7 +182,10 @@ class PermissionManager {
   /**
    * 模拟用户确认交互（演示用，自动批准）
    */
-  async askUser(toolName: string, params: Record<string, unknown>): Promise<{
+  async askUser(
+    toolName: string,
+    params: Record<string, unknown>,
+  ): Promise<{
     approved: boolean;
     alwaysAllow: boolean;
   }> {
@@ -215,7 +217,11 @@ class PermissionManager {
 
   // ---- 内部方法 ----
 
-  private matches(rule: PermissionRule, toolName: string, params: Record<string, unknown>): boolean {
+  private matches(
+    rule: PermissionRule,
+    toolName: string,
+    params: Record<string, unknown>,
+  ): boolean {
     // 工具名匹配（支持通配符）
     if (rule.tool !== '*' && rule.tool !== toolName) {
       return false;
@@ -242,7 +248,7 @@ class PermissionManager {
 
   private globMatch(pattern: string, text: string): boolean {
     // 简单通配符匹配：* 匹配任意字符
-    const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+    const regex = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`);
     return regex.test(text);
   }
 }
@@ -252,7 +258,7 @@ class PermissionManager {
 async function executeWithPermission(
   tool: Tool,
   params: Record<string, unknown>,
-  permManager: PermissionManager
+  permManager: PermissionManager,
 ): Promise<string> {
   const decision = permManager.check(tool.name, params);
 
@@ -353,9 +359,7 @@ async function agentLoopWithPermissions(userInput: string, mode: PermissionMode 
   permManager.addRule({ tool: 'write_file', behavior: 'deny', path: '/etc/*' }); // 禁止写系统目录
   permManager.addRule({ tool: 'write_file', behavior: 'deny', path: '*.env' }); // 禁止写 .env 文件
 
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -401,7 +405,7 @@ async function agentLoopWithPermissions(userInput: string, mode: PermissionMode 
           const result = await executeWithPermission(
             tool,
             block.input as Record<string, unknown>,
-            permManager
+            permManager,
           );
           console.log(`📤 结果: ${result}\n`);
           toolResults.push({
@@ -448,7 +452,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   ];
   for (const cmd of testCommands) {
     const { safe, flags } = BashSecurityValidator.validate(cmd);
-    const status = safe ? '✅ 安全' : flags.some((f) => f.severity === 'critical') ? '⛔ 危险' : '⚠️  警告';
+    const status = safe
+      ? '✅ 安全'
+      : flags.some((f) => f.severity === 'critical')
+        ? '⛔ 危险'
+        : '⚠️  警告';
     const details = flags.length > 0 ? ` [${flags.map((f) => f.description).join(', ')}]` : '';
     console.log(`  ${status} ${cmd}${details}`);
   }
@@ -456,9 +464,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 
   // 演示 2：带权限的代理循环
   await agentLoopWithPermissions(
-    '请帮我完成以下操作：\n1. 读取 src/index.ts 文件\n2. 写入新内容到 src/app.ts\n3. 执行 npm run build 命令\n4. 尝试写入 .env 文件（应该被拒绝）\n5. 尝试执行 sudo rm -rf /（应该被拦截）'
+    '请帮我完成以下操作：\n1. 读取 src/index.ts 文件\n2. 写入新内容到 src/app.ts\n3. 执行 npm run build 命令\n4. 尝试写入 .env 文件（应该被拒绝）\n5. 尝试执行 sudo rm -rf /（应该被拦截）',
   );
 }
 
-export { agentLoopWithPermissions, PermissionManager, BashSecurityValidator };
-export type { PermissionRule, PermissionDecision, PermissionMode };
+export type { PermissionDecision, PermissionMode, PermissionRule };
+export { agentLoopWithPermissions, BashSecurityValidator, PermissionManager };

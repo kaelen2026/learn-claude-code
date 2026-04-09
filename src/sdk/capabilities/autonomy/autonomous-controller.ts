@@ -28,7 +28,7 @@ export class AutonomousController {
     return [
       '[自主执行建议]',
       ...suggestions.map(
-        (suggestion) => `- #${suggestion.taskId} ${suggestion.subject}: ${suggestion.reason}`
+        (suggestion) => `- #${suggestion.taskId} ${suggestion.subject}: ${suggestion.reason}`,
       ),
     ].join('\n');
   }

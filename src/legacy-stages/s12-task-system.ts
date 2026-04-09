@@ -19,13 +19,13 @@
  * - 跨会话任务追踪
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { readdir, readFile, writeFile, mkdir } from 'fs/promises';
+import type Anthropic from '@anthropic-ai/sdk';
 import { existsSync } from 'fs';
+import { mkdir, readdir, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -94,7 +94,10 @@ class TaskManager {
   }
 
   /** 更新任务 */
-  async update(id: number, updates: Partial<Pick<TaskRecord, 'status' | 'owner' | 'description' | 'subject'>>): Promise<TaskRecord | null> {
+  async update(
+    id: number,
+    updates: Partial<Pick<TaskRecord, 'status' | 'owner' | 'description' | 'subject'>>,
+  ): Promise<TaskRecord | null> {
     const task = await this.get(id);
     if (!task) return null;
 
@@ -200,7 +203,7 @@ function createTaskTools(manager: TaskManager): Tool[] {
     execute: async (params) => {
       const task = await manager.create(
         params.subject as string,
-        (params.description as string) || ''
+        (params.description as string) || '',
       );
       return `任务创建成功: #${task.id} "${task.subject}"`;
     },
@@ -281,7 +284,8 @@ function createTaskTools(manager: TaskManager): Tool[] {
       const ready = tasks.filter((t) => manager.isReady(t));
       const lines = tasks.map((t) => {
         const readyFlag = manager.isReady(t) ? ' 🟢 READY' : '';
-        const blockedInfo = t.blockedBy.length > 0 ? ` ⛓️ blocked by: [${t.blockedBy.join(', ')}]` : '';
+        const blockedInfo =
+          t.blockedBy.length > 0 ? ` ⛓️ blocked by: [${t.blockedBy.join(', ')}]` : '';
         const ownerInfo = t.owner ? ` 👤 ${t.owner}` : '';
         return `  ${statusIcon(t.status)} #${t.id} ${t.subject}${ownerInfo}${blockedInfo}${readyFlag}`;
       });
@@ -344,9 +348,7 @@ async function agentLoopWithTasks(userInput: string) {
   console.log(`👤 用户: ${userInput}\n`);
 
   const tools = createTaskTools(manager);
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -428,9 +430,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 12: Task System 示例 ===\n');
 
   await agentLoopWithTasks(
-    '请帮我规划一个用户认证系统的开发任务：\n1. 设计数据库 schema\n2. 实现注册 API（依赖 schema）\n3. 实现登录 API（依赖 schema）\n4. 编写测试（依赖注册和登录 API）\n请创建任务并设置依赖关系，然后展示任务看板。'
+    '请帮我规划一个用户认证系统的开发任务：\n1. 设计数据库 schema\n2. 实现注册 API（依赖 schema）\n3. 实现登录 API（依赖 schema）\n4. 编写测试（依赖注册和登录 API）\n请创建任务并设置依赖关系，然后展示任务看板。',
   );
 }
 
-export { agentLoopWithTasks, TaskManager };
 export type { TaskRecord, TaskRecordStatus };
+export { agentLoopWithTasks, TaskManager };

@@ -1,5 +1,5 @@
-import { appendFile, readFile, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
+import { appendFile, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import type { MessageEnvelope } from '../../shared/types.js';
 

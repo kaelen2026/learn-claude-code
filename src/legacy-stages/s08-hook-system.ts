@@ -20,10 +20,10 @@
  * - 关注点分离（主循环 vs 扩展逻辑）
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import type { Tool } from '../core/types.js';
+import type Anthropic from '@anthropic-ai/sdk';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -37,7 +37,7 @@ interface HookEvent {
 }
 
 interface HookResult {
-  exitCode: 0 | 1 | 2;  // 0=继续, 1=阻止, 2=注入消息后继续
+  exitCode: 0 | 1 | 2; // 0=继续, 1=阻止, 2=注入消息后继续
   message: string;
 }
 
@@ -75,10 +75,12 @@ class HookRunner {
         const result = await Promise.race([
           handler(event),
           new Promise<HookResult>((_, reject) =>
-            setTimeout(() => reject(new Error('Hook timeout')), 30_000)
+            setTimeout(() => reject(new Error('Hook timeout')), 30_000),
           ),
         ]);
-        console.log(`  🪝 [${event.name}] ${name} → 退出码 ${result.exitCode}${result.message ? ': ' + result.message : ''}`);
+        console.log(
+          `  🪝 [${event.name}] ${name} → 退出码 ${result.exitCode}${result.message ? `: ${result.message}` : ''}`,
+        );
         results.push(result);
       } catch (error) {
         console.log(`  ❌ [${event.name}] ${name} 执行失败: ${error}`);
@@ -284,9 +286,7 @@ async function agentLoopWithHooks(userInput: string) {
 
   console.log(`👤 用户: ${userInput}\n`);
 
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -415,9 +415,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 08: Hook System 示例 ===\n');
 
   await agentLoopWithHooks(
-    '请帮我完成以下操作：\n1. 读取 src/index.ts\n2. 创建 src/helper.ts 文件\n3. 尝试写入 .env.local 文件\n4. 执行 npm test 命令'
+    '请帮我完成以下操作：\n1. 读取 src/index.ts\n2. 创建 src/helper.ts 文件\n3. 尝试写入 .env.local 文件\n4. 执行 npm test 命令',
   );
 }
 
+export type { HookEvent, HookEventName, HookHandler, HookResult };
 export { agentLoopWithHooks, HookRunner };
-export type { HookEvent, HookResult, HookHandler, HookEventName };

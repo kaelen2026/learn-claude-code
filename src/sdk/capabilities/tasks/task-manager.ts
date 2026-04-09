@@ -1,5 +1,5 @@
 import type { TaskRecord, TaskStatus } from '../../shared/types.js';
-import { TaskStore } from '../../stores/tasks/task-store.js';
+import type { TaskStore } from '../../stores/tasks/task-store.js';
 import { addTaskDependencies, unlockTaskDependents } from './dependency-graph.js';
 import { isTaskReady } from './ready-rule.js';
 
@@ -40,7 +40,7 @@ export class TaskManager {
 
   async update(
     id: number,
-    updates: Partial<Pick<TaskRecord, 'status' | 'owner' | 'description' | 'subject'>>
+    updates: Partial<Pick<TaskRecord, 'status' | 'owner' | 'description' | 'subject'>>,
   ): Promise<TaskRecord | null> {
     const task = await this.store.get(id);
     if (!task) return null;

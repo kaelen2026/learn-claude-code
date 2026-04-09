@@ -1,5 +1,5 @@
-import { readdir, readFile } from 'fs/promises';
 import { existsSync } from 'fs';
+import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import type { SkillManifest } from '../../shared/types.js';
 import { parseSkillManifest } from './frontmatter.js';

@@ -19,10 +19,10 @@
  * - 通知队列注入主循环
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import type { Tool } from '../core/types.js';
+import type Anthropic from '@anthropic-ai/sdk';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -73,7 +73,7 @@ function matchesField(field: string, value: number, _min: number, _max: number):
 
   // */N — 步进
   if (field.startsWith('*/')) {
-    const step = parseInt(field.slice(2));
+    const step = parseInt(field.slice(2), 10);
     return value % step === 0;
   }
 
@@ -85,7 +85,7 @@ function matchesField(field: string, value: number, _min: number, _max: number):
       const [start, end] = part.split('-').map(Number);
       if (value >= start && value <= end) return true;
     } else {
-      if (parseInt(part) === value) return true;
+      if (parseInt(part, 10) === value) return true;
     }
   }
 
@@ -190,7 +190,10 @@ function createScheduleTools(manager: ScheduleManager): Tool[] {
     input_schema: {
       type: 'object',
       properties: {
-        cron: { type: 'string', description: 'Cron 表达式，如 "*/5 * * * *"（每5分钟）、"0 9 * * 1"（每周一9点）' },
+        cron: {
+          type: 'string',
+          description: 'Cron 表达式，如 "*/5 * * * *"（每5分钟）、"0 9 * * 1"（每周一9点）',
+        },
         prompt: { type: 'string', description: '到期时要执行的提示/任务' },
         recurring: { type: 'boolean', description: '是否重复执行（默认 true）' },
       },
@@ -200,7 +203,7 @@ function createScheduleTools(manager: ScheduleManager): Tool[] {
       const record = manager.create(
         params.cron as string,
         params.prompt as string,
-        (params.recurring as boolean) ?? true
+        (params.recurring as boolean) ?? true,
       );
       return `调度创建成功:\n${formatSchedule(record)}`;
     },
@@ -277,9 +280,7 @@ async function agentLoopWithSchedule(userInput: string) {
   console.log(`👤 用户: ${userInput}\n`);
 
   const tools = createScheduleTools(manager);
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -295,7 +296,7 @@ async function agentLoopWithSchedule(userInput: string) {
     loopCount++;
 
     // 模拟时间推进：手动触发一次检查
-    const fired = manager.check();
+    const _fired = manager.check();
     const notifications = manager.drainNotifications();
     if (notifications.length > 0) {
       const notifText = notifications
@@ -369,7 +370,9 @@ async function agentLoopWithSchedule(userInput: string) {
 
     for (const s of schedules) {
       const matches = matchesCron(s.cron, now);
-      console.log(`  ${matches ? '🔔' : '⏳'} ${s.id} [${s.cron}] → ${matches ? '匹配！' : '未匹配'}`);
+      console.log(
+        `  ${matches ? '🔔' : '⏳'} ${s.id} [${s.cron}] → ${matches ? '匹配！' : '未匹配'}`,
+      );
     }
   }
 
@@ -382,7 +385,9 @@ function demoCronParser() {
   console.log('--- Cron 解析器演示 ---\n');
 
   const now = new Date();
-  console.log(`当前时间: ${now.toLocaleString('zh-CN')} (分=${now.getMinutes()}, 时=${now.getHours()}, 周=${now.getDay()})\n`);
+  console.log(
+    `当前时间: ${now.toLocaleString('zh-CN')} (分=${now.getMinutes()}, 时=${now.getHours()}, 周=${now.getDay()})\n`,
+  );
 
   const expressions = [
     { cron: '* * * * *', desc: '每分钟' },
@@ -408,9 +413,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   demoCronParser();
 
   await agentLoopWithSchedule(
-    '请帮我设置以下定时任务：\n1. 每 5 分钟检查一次服务健康状态\n2. 每天早上 9 点生成日报\n3. 每周一 10 点运行全量测试（一次性）\n然后列出所有调度。'
+    '请帮我设置以下定时任务：\n1. 每 5 分钟检查一次服务健康状态\n2. 每天早上 9 点生成日报\n3. 每周一 10 点运行全量测试（一次性）\n然后列出所有调度。',
   );
 }
 
-export { agentLoopWithSchedule, ScheduleManager, matchesCron };
-export type { ScheduleRecord, ScheduleNotification };
+export type { ScheduleNotification, ScheduleRecord };
+export { agentLoopWithSchedule, matchesCron, ScheduleManager };

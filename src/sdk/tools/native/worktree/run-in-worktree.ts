@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { WorktreeManager } from '../../../capabilities/worktrees/worktree-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createRunInWorktreeTool(manager: WorktreeManager): ToolDefinition {
   return {
@@ -14,7 +14,6 @@ export function createRunInWorktreeTool(manager: WorktreeManager): ToolDefinitio
       },
       required: ['name', 'command'],
     },
-    execute: async (input) =>
-      manager.run(String(input.name), String(input.command)),
+    execute: async (input) => manager.run(String(input.name), String(input.command)),
   };
 }

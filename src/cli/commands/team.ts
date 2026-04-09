@@ -1,8 +1,8 @@
-import { createWorkspaceStore } from '../../sdk/stores/workspace-store.js';
-import { TeamStore } from '../../sdk/stores/teams/team-store.js';
-import { InboxStore } from '../../sdk/stores/teams/inbox-store.js';
 import { MessageBus } from '../../sdk/capabilities/subagents/message-bus.js';
 import { TeamManager } from '../../sdk/capabilities/subagents/team-manager.js';
+import { InboxStore } from '../../sdk/stores/teams/inbox-store.js';
+import { TeamStore } from '../../sdk/stores/teams/team-store.js';
+import { createWorkspaceStore } from '../../sdk/stores/workspace-store.js';
 
 export async function runTeamCommand(argv: string[]) {
   const [subcommand = 'list', ...rest] = argv;
@@ -10,7 +10,7 @@ export async function runTeamCommand(argv: string[]) {
   await workspaceStore.init();
   const manager = new TeamManager(
     new TeamStore(workspaceStore.paths.teamsDir),
-    new MessageBus(new InboxStore(workspaceStore.paths.teamsInboxDir))
+    new MessageBus(new InboxStore(workspaceStore.paths.teamsInboxDir)),
   );
 
   switch (subcommand) {

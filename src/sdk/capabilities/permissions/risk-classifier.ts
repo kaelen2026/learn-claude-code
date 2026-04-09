@@ -17,7 +17,7 @@ export interface PermissionDecision {
 
 export function classifyToolRisk(
   tool: ToolDefinition,
-  input: Record<string, unknown>
+  input: Record<string, unknown>,
 ): 'read' | 'write' | 'high' {
   if (tool.riskLevel) return tool.riskLevel;
 
@@ -45,9 +45,7 @@ export function classifyToolRisk(
 }
 
 export function globMatch(pattern: string, text: string): boolean {
-  const escaped = pattern
-    .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*/g, '.*');
+  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
 
   try {
     const regex = new RegExp(`^${escaped}$`);

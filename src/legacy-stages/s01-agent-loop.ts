@@ -13,7 +13,7 @@
  * - 基础的异步流程控制
  */
 
-import Anthropic from '@anthropic-ai/sdk';
+import type Anthropic from '@anthropic-ai/sdk';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
 
@@ -49,7 +49,9 @@ async function simpleAgentLoop(userInput: string) {
       .join('\n');
 
     console.log(`🤖 Claude: ${textContent}\n`);
-    console.log(`📊 使用 tokens: ${response.usage.input_tokens} 输入 + ${response.usage.output_tokens} 输出\n`);
+    console.log(
+      `📊 使用 tokens: ${response.usage.input_tokens} 输入 + ${response.usage.output_tokens} 输出\n`,
+    );
 
     return textContent;
   } catch (error) {
@@ -67,11 +69,7 @@ async function conversationLoop() {
   const messages: Anthropic.MessageParam[] = [];
 
   // 模拟多轮对话
-  const userInputs = [
-    '你好！我想学习 TypeScript',
-    '能给我推荐一些学习资源吗？',
-    '谢谢！',
-  ];
+  const userInputs = ['你好！我想学习 TypeScript', '能给我推荐一些学习资源吗？', '谢谢！'];
 
   for (const input of userInputs) {
     console.log(`👤 用户: ${input}\n`);
@@ -122,4 +120,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   await conversationLoop();
 }
 
-export { simpleAgentLoop, conversationLoop };
+export { conversationLoop, simpleAgentLoop };

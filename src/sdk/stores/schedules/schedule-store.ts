@@ -1,8 +1,8 @@
-import { readdir } from 'fs/promises';
 import { existsSync } from 'fs';
+import { readdir } from 'fs/promises';
 import { join } from 'path';
-import type { ScheduleRecord } from './schedule-record.js';
 import { readJsonFile, writeJsonFile } from '../fs/json-store.js';
+import type { ScheduleRecord } from './schedule-record.js';
 
 export class ScheduleStore {
   constructor(private readonly schedulesDir: string) {}

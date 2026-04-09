@@ -1,4 +1,4 @@
-import type { HookEventName, HookResult, HookEvent } from './lifecycle-events.js';
+import type { HookEvent, HookEventName, HookResult } from './lifecycle-events.js';
 
 export type HookHandler = (event: HookEvent) => Promise<HookResult>;
 

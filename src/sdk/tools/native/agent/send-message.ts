@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { TeamManager } from '../../../capabilities/subagents/team-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createSendMessageTool(manager: TeamManager): ToolDefinition {
   return {
@@ -16,11 +16,7 @@ export function createSendMessageTool(manager: TeamManager): ToolDefinition {
       required: ['from', 'to', 'content'],
     },
     execute: async (input) => {
-      await manager.sendMessage(
-        String(input.from),
-        String(input.to),
-        String(input.content)
-      );
+      await manager.sendMessage(String(input.from), String(input.to), String(input.content));
       return `消息已发送: ${String(input.from)} → ${String(input.to)}`;
     },
   };

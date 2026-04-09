@@ -9,7 +9,7 @@ export interface ResolvedWorkspacePath {
 export function resolveWorkspacePath(
   workspaceRoot: string,
   requestedPath: string,
-  kind: 'file' | 'directory'
+  kind: 'file' | 'directory',
 ): ResolvedWorkspacePath {
   const root = resolve(workspaceRoot);
   const normalizedInput = requestedPath.trim();

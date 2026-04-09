@@ -44,7 +44,7 @@ export function evaluatePermissionPolicy(input: {
 function matchesRule(
   rule: PermissionRule,
   toolName: string,
-  params: Record<string, unknown>
+  params: Record<string, unknown>,
 ): boolean {
   if (rule.tool !== '*' && !globMatch(rule.tool, toolName)) {
     return false;

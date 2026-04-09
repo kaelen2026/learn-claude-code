@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { WorktreeManager } from '../../../capabilities/worktrees/worktree-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createCloseoutWorktreeTool(manager: WorktreeManager): ToolDefinition {
   return {
@@ -19,7 +19,7 @@ export function createCloseoutWorktreeTool(manager: WorktreeManager): ToolDefini
       manager.closeout(
         String(input.name),
         String(input.action) === 'remove' ? 'remove' : 'keep',
-        String(input.reason)
+        String(input.reason),
       ),
   };
 }

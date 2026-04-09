@@ -15,10 +15,10 @@
  * - 上下文隔离
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import type { Tool } from '../core/types.js';
+import type Anthropic from '@anthropic-ai/sdk';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -47,9 +47,7 @@ async function runSubagent(task: string, context: string): Promise<string> {
   const messages: Anthropic.MessageParam[] = [
     {
       role: 'user',
-      content: context
-        ? `背景信息: ${context}\n\n任务: ${task}`
-        : task,
+      content: context ? `背景信息: ${context}\n\n任务: ${task}` : task,
     },
   ];
 
@@ -94,7 +92,8 @@ async function runSubagent(task: string, context: string): Promise<string> {
  */
 const spawnSubagentTool: Tool = {
   name: 'spawn_subagent',
-  description: '创建一个子代理来处理特定的子任务。子代理有独立的上下文，专注完成指定任务后返回结果。',
+  description:
+    '创建一个子代理来处理特定的子任务。子代理有独立的上下文，专注完成指定任务后返回结果。',
   input_schema: {
     type: 'object',
     properties: {
@@ -140,7 +139,7 @@ const listResultsTool: Tool = {
     return results
       .map(
         (r) =>
-          `📋 子代理 #${r.id}\n   任务: ${r.task}\n   结果: ${r.result.slice(0, 200)}${r.result.length > 200 ? '...' : ''}`
+          `📋 子代理 #${r.id}\n   任务: ${r.task}\n   结果: ${r.result.slice(0, 200)}${r.result.length > 200 ? '...' : ''}`,
       )
       .join('\n---\n');
   },
@@ -164,9 +163,7 @@ async function agentLoopWithSubagents(userInput: string) {
   console.log('🤖 启动主代理（支持子代理）...\n');
   console.log(`👤 用户: ${userInput}\n`);
 
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -254,7 +251,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 04: Subagent 示例 ===\n');
 
   await agentLoopWithSubagents(
-    '请分别研究 React、Vue 和 Svelte 这三个前端框架的优缺点，然后给我一个对比总结。'
+    '请分别研究 React、Vue 和 Svelte 这三个前端框架的优缺点，然后给我一个对比总结。',
   );
 }
 

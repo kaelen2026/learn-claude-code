@@ -22,14 +22,13 @@
  * - 主循环与后台任务的协调
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { exec } from 'child_process';
-import { writeFile, mkdir } from 'fs/promises';
+import type Anthropic from '@anthropic-ai/sdk';
 import { existsSync } from 'fs';
+import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -242,9 +241,7 @@ async function agentLoopWithBackground(userInput: string) {
   console.log(`👤 用户: ${userInput}\n`);
 
   const tools = createBgTools(bgManager);
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -338,9 +335,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 13: Background Tasks 示例 ===\n');
 
   await agentLoopWithBackground(
-    '请帮我同时在后台执行以下操作：\n1. npm install（后台）\n2. npm run build（后台）\n然后在等待期间用 bash 检查一下当前目录。\n最后确认所有后台任务完成。'
+    '请帮我同时在后台执行以下操作：\n1. npm install（后台）\n2. npm run build（后台）\n然后在等待期间用 bash 检查一下当前目录。\n最后确认所有后台任务完成。',
   );
 }
 
+export type { Notification, RuntimeTaskRecord };
 export { agentLoopWithBackground, BackgroundManager };
-export type { RuntimeTaskRecord, Notification };

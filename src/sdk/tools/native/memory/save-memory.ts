@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { MemoryManager } from '../../../capabilities/memory/memory-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createSaveMemoryTool(manager: MemoryManager): ToolDefinition {
   return {

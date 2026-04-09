@@ -19,8 +19,8 @@
  * - 事件日志追踪生命周期
  */
 
-import { mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
+import { mkdir } from 'fs/promises';
 import { join } from 'path';
 
 // ============ 数据结构 ============
@@ -77,7 +77,12 @@ class WorktreeManager {
 
   /** 创建任务 */
   createTask(subject: string): WorktreeTask {
-    const task: WorktreeTask = { id: this.nextTaskId++, subject, worktree: '', worktreeState: 'unbound' };
+    const task: WorktreeTask = {
+      id: this.nextTaskId++,
+      subject,
+      worktree: '',
+      worktreeState: 'unbound',
+    };
     this.tasks.set(task.id, task);
     return task;
   }
@@ -86,15 +91,23 @@ class WorktreeManager {
   create(name: string, taskId: number): WorktreeRecord {
     const path = join(this.baseDir, name);
     const record: WorktreeRecord = {
-      name, path, branch: `worktree/${name}`,
-      taskId, status: 'active',
-      lastEnteredAt: null, lastCommandAt: null, closeout: null,
+      name,
+      path,
+      branch: `worktree/${name}`,
+      taskId,
+      status: 'active',
+      lastEnteredAt: null,
+      lastCommandAt: null,
+      closeout: null,
     };
     this.worktrees.set(name, record);
 
     // 更新任务绑定
     const task = this.tasks.get(taskId);
-    if (task) { task.worktree = name; task.worktreeState = 'active'; }
+    if (task) {
+      task.worktree = name;
+      task.worktreeState = 'active';
+    }
 
     this.logEvent('worktree.created', taskId, name);
 
@@ -137,9 +150,15 @@ class WorktreeManager {
     return `工作树 ${name} 已${action === 'keep' ? '保留' : '移除'}: ${reason}`;
   }
 
-  list(): WorktreeRecord[] { return Array.from(this.worktrees.values()); }
-  listTasks(): WorktreeTask[] { return Array.from(this.tasks.values()); }
-  getEvents(): WorktreeEvent[] { return this.events; }
+  list(): WorktreeRecord[] {
+    return Array.from(this.worktrees.values());
+  }
+  listTasks(): WorktreeTask[] {
+    return Array.from(this.tasks.values());
+  }
+  getEvents(): WorktreeEvent[] {
+    return this.events;
+  }
 
   private logEvent(event: string, taskId: number | null, worktree: string) {
     this.events.push({ event, taskId, worktree, ts: Date.now() });
@@ -182,7 +201,9 @@ async function demo() {
   console.log('=== 工作树状态 ===');
   for (const wt of manager.list()) {
     const icon = { active: '🟢', kept: '📦', removed: '🗑️' }[wt.status];
-    console.log(`  ${icon} ${wt.name} → ${wt.status}${wt.closeout ? ` (${wt.closeout.reason})` : ''}`);
+    console.log(
+      `  ${icon} ${wt.name} → ${wt.status}${wt.closeout ? ` (${wt.closeout.reason})` : ''}`,
+    );
   }
 
   console.log('\n=== 任务绑定状态 ===');
@@ -192,7 +213,9 @@ async function demo() {
 
   console.log('\n=== 事件日志 ===');
   for (const e of manager.getEvents()) {
-    console.log(`  [${new Date(e.ts).toLocaleTimeString()}] ${e.event} | worktree=${e.worktree} task=${e.taskId}`);
+    console.log(
+      `  [${new Date(e.ts).toLocaleTimeString()}] ${e.event} | worktree=${e.worktree} task=${e.taskId}`,
+    );
   }
 }
 
@@ -201,5 +224,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   await demo();
 }
 
+export type { CloseoutRecord, WorktreeEvent, WorktreeRecord, WorktreeTask };
 export { WorktreeManager };
-export type { WorktreeRecord, WorktreeTask, CloseoutRecord, WorktreeEvent };

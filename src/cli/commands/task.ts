@@ -1,6 +1,6 @@
-import { createWorkspaceStore } from '../../sdk/stores/workspace-store.js';
+import { formatTask, TaskManager } from '../../sdk/capabilities/tasks/task-manager.js';
 import { TaskStore } from '../../sdk/stores/tasks/task-store.js';
-import { TaskManager, formatTask } from '../../sdk/capabilities/tasks/task-manager.js';
+import { createWorkspaceStore } from '../../sdk/stores/workspace-store.js';
 
 export async function runTaskCommand(argv: string[]) {
   const [subcommand = 'list', ...rest] = argv;

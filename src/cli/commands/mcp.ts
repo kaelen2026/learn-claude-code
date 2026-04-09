@@ -1,5 +1,5 @@
-import { MCPRegistry } from '../../sdk/tools/mcp/mcp-registry.js';
 import { MCPClient } from '../../sdk/tools/mcp/mcp-client.js';
+import { MCPRegistry } from '../../sdk/tools/mcp/mcp-registry.js';
 
 export async function runMcpCommand(argv: string[]) {
   const [subcommand = 'list'] = argv;

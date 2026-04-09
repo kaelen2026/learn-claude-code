@@ -14,11 +14,11 @@
  * - AI 驱动的任务规划
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { TaskStatus } from '../core/types.js';
-import type { Task, Tool } from '../core/types.js';
+import type Anthropic from '@anthropic-ai/sdk';
 import { createAnthropicClient } from '../core/client.js';
 import { appConfig } from '../core/config.js';
+import type { Task, Tool } from '../core/types.js';
+import { TaskStatus } from '../core/types.js';
 
 const client = createAnthropicClient();
 
@@ -192,9 +192,7 @@ async function agentLoopWithTodos(userInput: string) {
   console.log('🤖 启动任务管理代理...\n');
   console.log(`👤 用户: ${userInput}\n`);
 
-  const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: userInput },
-  ];
+  const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userInput }];
 
   const anthropicTools: Anthropic.Tool[] = tools.map((tool) => ({
     name: tool.name,
@@ -278,7 +276,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== Stage 03: Todo Write 示例 ===\n');
 
   await agentLoopWithTodos(
-    '请帮我规划搭建一个博客网站，需要：1) 设计页面结构 2) 选择技术栈 3) 部署上线。请用任务工具管理这些步骤。'
+    '请帮我规划搭建一个博客网站，需要：1) 设计页面结构 2) 选择技术栈 3) 部署上线。请用任务工具管理这些步骤。',
   );
 }
 

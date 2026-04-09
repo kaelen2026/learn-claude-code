@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { TeamManager } from '../../../capabilities/subagents/team-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createListTeamTool(manager: TeamManager): ToolDefinition {
   return {
@@ -14,7 +14,10 @@ export function createListTeamTool(manager: TeamManager): ToolDefinition {
       const members = await manager.listMembers();
       if (members.length === 0) return '团队为空';
       return members
-        .map((member) => `  ${member.status === 'working' ? '🔄' : '💤'} ${member.name} (${member.role}) - ${member.status}`)
+        .map(
+          (member) =>
+            `  ${member.status === 'working' ? '🔄' : '💤'} ${member.name} (${member.role}) - ${member.status}`,
+        )
         .join('\n');
     },
   };

@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { ScheduleManager } from '../../../capabilities/scheduling/schedule-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createCronDeleteTool(manager: ScheduleManager): ToolDefinition {
   return {

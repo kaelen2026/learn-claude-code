@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { WorktreeManager } from '../../../capabilities/worktrees/worktree-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createCreateWorktreeTool(manager: WorktreeManager): ToolDefinition {
   return {
@@ -17,7 +17,7 @@ export function createCreateWorktreeTool(manager: WorktreeManager): ToolDefiniti
     execute: async (input) => {
       const record = await manager.create(
         String(input.name),
-        input.task_id === undefined ? null : Number(input.task_id)
+        input.task_id === undefined ? null : Number(input.task_id),
       );
       return `工作树已创建: ${record.name} (${record.branch})`;
     },

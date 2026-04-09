@@ -22,12 +22,10 @@
  * - 权限门控
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import type { Tool } from '../core/types.js';
 import { createAnthropicClient } from '../core/client.js';
-import { appConfig } from '../core/config.js';
+import type { Tool } from '../core/types.js';
 
-const client = createAnthropicClient();
+const _client = createAnthropicClient();
 
 // ============ 数据结构 ============
 
@@ -67,7 +65,12 @@ class CapabilityPermissionGate {
   private deniedPatterns = ['mcp__*__drop_*', 'mcp__*__delete_*'];
   private autoAllowRead = true;
 
-  check(source: 'native' | 'mcp', server: string, tool: string, risk: RiskLevel): PermissionGateDecision {
+  check(
+    source: 'native' | 'mcp',
+    server: string,
+    tool: string,
+    risk: RiskLevel,
+  ): PermissionGateDecision {
     const fullName = source === 'mcp' ? `mcp__${server}__${tool}` : tool;
 
     // 检查拒绝模式
@@ -91,7 +94,7 @@ class CapabilityPermissionGate {
   }
 
   private matchPattern(pattern: string, name: string): boolean {
-    const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+    const regex = new RegExp(`^${pattern.replace(/\*/g, '.*')}$`);
     return regex.test(name);
   }
 }
@@ -139,8 +142,12 @@ class MCPClient {
     }));
   }
 
-  getName(): string { return this.server.name; }
-  isConnected(): boolean { return this.server.connected; }
+  getName(): string {
+    return this.server.name;
+  }
+  isConnected(): boolean {
+    return this.server.connected;
+  }
 }
 
 // ============ MCPToolRouter ============
@@ -150,8 +157,12 @@ class MCPToolRouter {
   private mcpClients = new Map<string, MCPClient>();
   private gate = new CapabilityPermissionGate();
 
-  addNativeTool(tool: Tool) { this.nativeTools.push(tool); }
-  addMCPClient(mcpClient: MCPClient) { this.mcpClients.set(mcpClient.getName(), mcpClient); }
+  addNativeTool(tool: Tool) {
+    this.nativeTools.push(tool);
+  }
+  addMCPClient(mcpClient: MCPClient) {
+    this.mcpClients.set(mcpClient.getName(), mcpClient);
+  }
 
   /** 获取统一工具池 */
   getAllTools(): Tool[] {
@@ -169,7 +180,14 @@ class MCPToolRouter {
       const mcpClient = this.mcpClients.get(serverName);
 
       if (!mcpClient) {
-        return { source: 'mcp', server: serverName, tool: originalTool, risk: 'read', status: 'error', content: `MCP 服务器 ${serverName} 未连接` };
+        return {
+          source: 'mcp',
+          server: serverName,
+          tool: originalTool,
+          risk: 'read',
+          status: 'error',
+          content: `MCP 服务器 ${serverName} 未连接`,
+        };
       }
 
       const toolDef = mcpClient.listTools().find((t) => t.name === originalTool);
@@ -178,26 +196,61 @@ class MCPToolRouter {
       // 权限检查
       const decision = this.gate.check('mcp', serverName, originalTool, risk);
       if (!decision.allowed) {
-        return { source: 'mcp', server: serverName, tool: originalTool, risk, status: 'error', content: `权限拒绝: ${decision.reason}` };
+        return {
+          source: 'mcp',
+          server: serverName,
+          tool: originalTool,
+          risk,
+          status: 'error',
+          content: `权限拒绝: ${decision.reason}`,
+        };
       }
 
       const result = await mcpClient.callTool(originalTool, params);
-      return { source: 'mcp', server: serverName, tool: originalTool, risk, status: 'ok', content: result };
+      return {
+        source: 'mcp',
+        server: serverName,
+        tool: originalTool,
+        risk,
+        status: 'ok',
+        content: result,
+      };
     }
 
     // Native 工具
     const native = this.nativeTools.find((t) => t.name === toolName);
     if (!native) {
-      return { source: 'native', server: '', tool: toolName, risk: 'read', status: 'error', content: `工具 ${toolName} 不存在` };
+      return {
+        source: 'native',
+        server: '',
+        tool: toolName,
+        risk: 'read',
+        status: 'error',
+        content: `工具 ${toolName} 不存在`,
+      };
     }
 
     const decision = this.gate.check('native', '', toolName, 'read');
     if (!decision.allowed) {
-      return { source: 'native', server: '', tool: toolName, risk: 'read', status: 'error', content: `权限拒绝: ${decision.reason}` };
+      return {
+        source: 'native',
+        server: '',
+        tool: toolName,
+        risk: 'read',
+        status: 'error',
+        content: `权限拒绝: ${decision.reason}`,
+      };
     }
 
     const result = await native.execute(params);
-    return { source: 'native', server: '', tool: toolName, risk: 'read', status: 'ok', content: result };
+    return {
+      source: 'native',
+      server: '',
+      tool: toolName,
+      risk: 'read',
+      status: 'ok',
+      content: result,
+    };
   }
 }
 
@@ -217,16 +270,41 @@ async function demo() {
   // 创建 MCP 服务器：PostgreSQL
   const pgClient = new MCPClient('postgres', 'npx @mcp/postgres');
   await pgClient.connect();
-  pgClient.registerTool({ name: 'query', description: '执行 SQL 查询', inputSchema: { sql: { type: 'string' } }, risk: 'read' });
-  pgClient.registerTool({ name: 'insert', description: '插入数据', inputSchema: { table: { type: 'string' }, data: { type: 'object' } }, risk: 'write' });
-  pgClient.registerTool({ name: 'drop_table', description: '删除表', inputSchema: { table: { type: 'string' } }, risk: 'high' });
+  pgClient.registerTool({
+    name: 'query',
+    description: '执行 SQL 查询',
+    inputSchema: { sql: { type: 'string' } },
+    risk: 'read',
+  });
+  pgClient.registerTool({
+    name: 'insert',
+    description: '插入数据',
+    inputSchema: { table: { type: 'string' }, data: { type: 'object' } },
+    risk: 'write',
+  });
+  pgClient.registerTool({
+    name: 'drop_table',
+    description: '删除表',
+    inputSchema: { table: { type: 'string' } },
+    risk: 'high',
+  });
   router.addMCPClient(pgClient);
 
   // 创建 MCP 服务器：GitHub
   const ghClient = new MCPClient('github', 'npx @mcp/github');
   await ghClient.connect();
-  ghClient.registerTool({ name: 'list_prs', description: '列出 PR', inputSchema: { repo: { type: 'string' } }, risk: 'read' });
-  ghClient.registerTool({ name: 'create_issue', description: '创建 Issue', inputSchema: { title: { type: 'string' } }, risk: 'write' });
+  ghClient.registerTool({
+    name: 'list_prs',
+    description: '列出 PR',
+    inputSchema: { repo: { type: 'string' } },
+    risk: 'read',
+  });
+  ghClient.registerTool({
+    name: 'create_issue',
+    description: '创建 Issue',
+    inputSchema: { title: { type: 'string' } },
+    risk: 'write',
+  });
   router.addMCPClient(ghClient);
 
   // 展示统一工具池
@@ -261,5 +339,5 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   await demo();
 }
 
-export { MCPToolRouter, MCPClient, CapabilityPermissionGate };
-export type { MCPToolDef, MCPServer, NormalizedResult };
+export type { MCPServer, MCPToolDef, NormalizedResult };
+export { CapabilityPermissionGate, MCPClient, MCPToolRouter };

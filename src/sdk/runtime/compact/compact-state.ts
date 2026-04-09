@@ -4,6 +4,9 @@ export class CompactState {
   persistedOutputs: string[] = [];
 
   trackPersistedOutput(path: string) {
-    this.persistedOutputs = [path, ...this.persistedOutputs.filter((item) => item !== path)].slice(0, 5);
+    this.persistedOutputs = [path, ...this.persistedOutputs.filter((item) => item !== path)].slice(
+      0,
+      5,
+    );
   }
 }

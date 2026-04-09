@@ -1,6 +1,6 @@
 import type { RuntimeNotification, ScheduleRecord } from '../../shared/types.js';
-import { ScheduleStore } from '../../stores/schedules/schedule-store.js';
-import { NotificationQueue } from '../background/notification-queue.js';
+import type { ScheduleStore } from '../../stores/schedules/schedule-store.js';
+import type { NotificationQueue } from '../background/notification-queue.js';
 import { matchesCron } from './cron-parser.js';
 
 export class ScheduleManager {
@@ -8,7 +8,7 @@ export class ScheduleManager {
 
   constructor(
     private readonly store: ScheduleStore,
-    private readonly queue: NotificationQueue
+    private readonly queue: NotificationQueue,
   ) {}
 
   async init(): Promise<void> {

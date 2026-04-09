@@ -1,10 +1,10 @@
-import { loadAppConfig } from '../config/app-config.js';
-import type { WorkspaceStore } from '../stores/workspace-store.js';
-import type { ToolDefinition } from '../shared/types.js';
-import { SkillRegistry } from '../capabilities/skills/skill-registry.js';
 import { MemoryManager } from '../capabilities/memory/memory-manager.js';
-import { buildSystemPrompt } from './system-prompt-builder.js';
+import { SkillRegistry } from '../capabilities/skills/skill-registry.js';
+import { loadAppConfig } from '../config/app-config.js';
+import type { ToolDefinition } from '../shared/types.js';
 import { MemoryStore } from '../stores/memory/memory-store.js';
+import type { WorkspaceStore } from '../stores/workspace-store.js';
+import { buildSystemPrompt } from './system-prompt-builder.js';
 
 export async function assembleSystemPrompt(input: {
   workspaceStore: WorkspaceStore;
@@ -15,8 +15,8 @@ export async function assembleSystemPrompt(input: {
   const memories = await new MemoryManager(
     new MemoryStore(
       input.workspaceStore.paths.memoryDir,
-      input.workspaceStore.paths.memoryEntriesDir
-    )
+      input.workspaceStore.paths.memoryEntriesDir,
+    ),
   ).listSummaries();
 
   return buildSystemPrompt({

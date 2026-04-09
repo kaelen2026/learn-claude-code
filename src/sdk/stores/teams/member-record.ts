@@ -1,3 +1,3 @@
-import type { TeamMemberRecord, MemberStatus } from '../../shared/types.js';
+import type { MemberStatus, TeamMemberRecord } from '../../shared/types.js';
 
-export type { TeamMemberRecord, MemberStatus };
+export type { MemberStatus, TeamMemberRecord };

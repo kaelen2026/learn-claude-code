@@ -1,10 +1,10 @@
 import { runChatCommand } from './commands/chat.js';
-import { runTaskCommand } from './commands/task.js';
+import { runMcpCommand } from './commands/mcp.js';
 import { runMemoryCommand } from './commands/memory.js';
 import { runScheduleCommand } from './commands/schedule.js';
+import { runTaskCommand } from './commands/task.js';
 import { runTeamCommand } from './commands/team.js';
 import { runWorktreeCommand } from './commands/worktree.js';
-import { runMcpCommand } from './commands/mcp.js';
 
 export async function runCli(argv: string[]) {
   const [command = 'chat', ...rest] = argv;

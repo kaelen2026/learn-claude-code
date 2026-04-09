@@ -29,7 +29,7 @@ export const appConfig = {
 export function validateConfig() {
   if (!appConfig.apiKey) {
     throw new Error(
-      '认证凭证未设置。请在 .env 文件中配置 ANTHROPIC_API_KEY 或 ANTHROPIC_AUTH_TOKEN'
+      '认证凭证未设置。请在 .env 文件中配置 ANTHROPIC_API_KEY 或 ANTHROPIC_AUTH_TOKEN',
     );
   }
 }

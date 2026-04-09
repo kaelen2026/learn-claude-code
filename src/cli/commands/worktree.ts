@@ -1,6 +1,6 @@
+import { WorktreeManager } from '../../sdk/capabilities/worktrees/worktree-manager.js';
 import { createWorkspaceStore } from '../../sdk/stores/workspace-store.js';
 import { WorktreeStore } from '../../sdk/stores/worktrees/worktree-store.js';
-import { WorktreeManager } from '../../sdk/capabilities/worktrees/worktree-manager.js';
 
 export async function runWorktreeCommand(argv: string[]) {
   const [subcommand = 'list', ...rest] = argv;
@@ -8,7 +8,7 @@ export async function runWorktreeCommand(argv: string[]) {
   await workspaceStore.init();
   const manager = new WorktreeManager(
     new WorktreeStore(workspaceStore.paths.worktreesDir),
-    workspaceStore.paths.worktreesDir
+    workspaceStore.paths.worktreesDir,
   );
 
   switch (subcommand) {
@@ -30,10 +30,7 @@ export async function runWorktreeCommand(argv: string[]) {
         process.exitCode = 1;
         return;
       }
-      const record = await manager.create(
-        name,
-        taskIdRaw ? Number(taskIdRaw) : null
-      );
+      const record = await manager.create(name, taskIdRaw ? Number(taskIdRaw) : null);
       console.log(`工作树已创建: ${record.name} (${record.branch})`);
       return;
     }

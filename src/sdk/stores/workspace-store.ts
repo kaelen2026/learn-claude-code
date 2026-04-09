@@ -1,5 +1,5 @@
-import { mkdir, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
+import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { resolveWorkspacePaths, type WorkspacePaths } from '../config/paths.js';
 

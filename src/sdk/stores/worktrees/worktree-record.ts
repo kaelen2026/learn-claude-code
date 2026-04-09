@@ -1,3 +1,3 @@
-import type { WorktreeRecord, WorktreeStatus, CloseoutRecord } from '../../shared/types.js';
+import type { CloseoutRecord, WorktreeRecord, WorktreeStatus } from '../../shared/types.js';
 
-export type { WorktreeRecord, WorktreeStatus, CloseoutRecord };
+export type { CloseoutRecord, WorktreeRecord, WorktreeStatus };

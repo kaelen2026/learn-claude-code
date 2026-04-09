@@ -1,6 +1,9 @@
-import type { ToolDefinition } from '../../../shared/types.js';
-import { formatSchedule, type ScheduleManager } from '../../../capabilities/scheduling/schedule-manager.js';
 import { isValidCron } from '../../../capabilities/scheduling/cron-parser.js';
+import {
+  formatSchedule,
+  type ScheduleManager,
+} from '../../../capabilities/scheduling/schedule-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createCronCreateTool(manager: ScheduleManager): ToolDefinition {
   return {
@@ -24,7 +27,7 @@ export function createCronCreateTool(manager: ScheduleManager): ToolDefinition {
       const record = await manager.create(
         cron,
         String(input.prompt),
-        input.recurring === undefined ? true : Boolean(input.recurring)
+        input.recurring === undefined ? true : Boolean(input.recurring),
       );
       return `调度创建成功:\n${formatSchedule(record)}`;
     },

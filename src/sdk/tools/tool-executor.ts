@@ -1,8 +1,8 @@
 import type Anthropic from '@anthropic-ai/sdk';
+import type { HookRunner } from '../capabilities/hooks/hook-runner.js';
+import type { PermissionGate } from '../capabilities/permissions/permission-gate.js';
 import type { ToolDefinition } from '../shared/types.js';
 import { normalizeToolResult } from './tool-result.js';
-import type { PermissionGate } from '../capabilities/permissions/permission-gate.js';
-import type { HookRunner } from '../capabilities/hooks/hook-runner.js';
 
 export interface ToolExecutionOutcome {
   toolResult: Anthropic.ToolResultBlockParam;

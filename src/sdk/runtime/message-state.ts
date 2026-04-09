@@ -8,6 +8,13 @@ export class MessageState {
     this.messages = [{ role: 'user', content: initialUserInput }];
   }
 
+  /** 创建空的消息状态（用于交互式会话） */
+  static createEmpty(): MessageState {
+    const state = Object.create(MessageState.prototype) as MessageState;
+    state.messages = [];
+    return state;
+  }
+
   getAll(): AgentMessage[] {
     return this.messages;
   }

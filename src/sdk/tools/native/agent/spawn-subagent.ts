@@ -1,5 +1,5 @@
-import type { ToolDefinition } from '../../../shared/types.js';
 import type { SubagentManager } from '../../../capabilities/subagents/subagent-manager.js';
+import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createSpawnSubagentTool(manager: SubagentManager): ToolDefinition {
   return {
@@ -17,7 +17,7 @@ export function createSpawnSubagentTool(manager: SubagentManager): ToolDefinitio
     execute: async (input) => {
       const result = await manager.run(
         String(input.task),
-        input.context ? String(input.context) : ''
+        input.context ? String(input.context) : '',
       );
       return `子代理 #${result.id} 完成任务: "${result.task}"\n\n结果:\n${result.result}`;
     },

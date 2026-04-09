@@ -1,6 +1,6 @@
-import { createWorkspaceStore } from '../../sdk/stores/workspace-store.js';
-import { MemoryStore } from '../../sdk/stores/memory/memory-store.js';
 import { MemoryManager } from '../../sdk/capabilities/memory/memory-manager.js';
+import { MemoryStore } from '../../sdk/stores/memory/memory-store.js';
+import { createWorkspaceStore } from '../../sdk/stores/workspace-store.js';
 
 export async function runMemoryCommand(argv: string[]) {
   const [subcommand = 'list', ...rest] = argv;
@@ -8,10 +8,7 @@ export async function runMemoryCommand(argv: string[]) {
   await workspaceStore.init();
 
   const manager = new MemoryManager(
-    new MemoryStore(
-      workspaceStore.paths.memoryDir,
-      workspaceStore.paths.memoryEntriesDir
-    )
+    new MemoryStore(workspaceStore.paths.memoryDir, workspaceStore.paths.memoryEntriesDir),
   );
 
   switch (subcommand) {

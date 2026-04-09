@@ -1,5 +1,5 @@
-import { readFile, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
+import { readFile, writeFile } from 'fs/promises';
 
 export async function readJsonFile<T>(path: string, fallback: T): Promise<T> {
   if (!existsSync(path)) return fallback;

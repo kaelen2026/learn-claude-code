@@ -1,10 +1,10 @@
+import type { HookRegistry } from './hook-registry.js';
 import type { HookEvent, HookResult } from './lifecycle-events.js';
-import { HookRegistry } from './hook-registry.js';
 
 export class HookRunner {
   constructor(
     private readonly registry: HookRegistry,
-    private readonly timeoutMs = 3000
+    private readonly timeoutMs = 3000,
   ) {}
 
   async run(event: HookEvent): Promise<HookResult[]> {
@@ -47,7 +47,10 @@ export class HookRunner {
     if (injected.length > 0) {
       return {
         exitCode: 2,
-        message: injected.map((result) => result.message).filter(Boolean).join('\n'),
+        message: injected
+          .map((result) => result.message)
+          .filter(Boolean)
+          .join('\n'),
       };
     }
 

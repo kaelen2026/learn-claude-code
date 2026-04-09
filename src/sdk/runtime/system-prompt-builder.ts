@@ -1,4 +1,4 @@
-import type { ToolDefinition, SkillManifest, MemorySummary } from '../shared/types.js';
+import type { MemorySummary, SkillManifest, ToolDefinition } from '../shared/types.js';
 
 export interface SystemPromptSections {
   tools: ToolDefinition[];
@@ -10,15 +10,20 @@ export interface SystemPromptSections {
 
 export function buildSystemPrompt(input: SystemPromptSections): string {
   const now = new Date();
-  const toolText = input.tools.length > 0
-    ? input.tools.map((tool) => `- ${tool.name}: ${tool.description}`).join('\n')
-    : '- 暂无工具';
-  const skillText = input.skills.length > 0
-    ? input.skills.map((skill) => `- ${skill.name}: ${skill.description}`).join('\n')
-    : '- 暂无技能';
-  const memoryText = input.memories.length > 0
-    ? input.memories.map((memory) => `- [${memory.type}] ${memory.name}: ${memory.description}`).join('\n')
-    : '- 当前没有存储的记忆';
+  const toolText =
+    input.tools.length > 0
+      ? input.tools.map((tool) => `- ${tool.name}: ${tool.description}`).join('\n')
+      : '- 暂无工具';
+  const skillText =
+    input.skills.length > 0
+      ? input.skills.map((skill) => `- ${skill.name}: ${skill.description}`).join('\n')
+      : '- 暂无技能';
+  const memoryText =
+    input.memories.length > 0
+      ? input.memories
+          .map((memory) => `- [${memory.type}] ${memory.name}: ${memory.description}`)
+          .join('\n')
+      : '- 当前没有存储的记忆';
 
   return `# 核心身份
 
