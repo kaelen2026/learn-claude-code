@@ -69,6 +69,8 @@ npm run s06
 **第三部分：持久化任务和调度（s12-s14）**
 
 - ✅ s12: Task System - 任务系统
+- ✅ s13: Background Tasks - 后台任务
+- ✅ s14: Scheduled Tasks - 定时调度
 
 **第四部分：团队协作和集成（s15-s19）**
 
@@ -92,6 +94,8 @@ learn-claude-code-ts/
 │   │   ├── s10-system-prompt.ts
 │   │   ├── s11-error-recovery.ts
 │   │   ├── s12-task-system.ts
+│   │   ├── s13-background-tasks.ts
+│   │   ├── s14-scheduled-tasks.ts
 │   │   └── ...
 │   ├── core/            # 核心类型和工具
 │   │   ├── types.ts

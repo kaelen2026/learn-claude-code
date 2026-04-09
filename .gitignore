@@ -35,3 +35,6 @@ hello.txt
 
 # Task system storage
 .tasks/
+
+# Background task output
+.bg-output/
