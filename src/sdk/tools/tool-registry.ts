@@ -12,6 +12,7 @@ import { SubagentManager } from '../capabilities/subagents/subagent-manager.js';
 import { TeamManager } from '../capabilities/subagents/team-manager.js';
 import { TaskManager } from '../capabilities/tasks/task-manager.js';
 import { WorktreeManager } from '../capabilities/worktrees/worktree-manager.js';
+import { ModelGateway } from '../client/model-gateway.js';
 import type { ToolDefinition } from '../shared/types.js';
 import { RuntimeTaskStore } from '../stores/background/runtime-task-store.js';
 import { MemoryStore } from '../stores/memory/memory-store.js';
@@ -120,7 +121,18 @@ export async function createDefaultToolRegistry(input: {
   registry.register(createCronDeleteTool(scheduleManager));
   registry.register(createCronListTool(scheduleManager));
 
-  const subagentManager = new SubagentManager();
+  const gateway = new ModelGateway();
+  const subagentManager = new SubagentManager(async (prompt, systemPrompt) => {
+    const response = await gateway.respond({
+      system: systemPrompt,
+      messages: [{ role: 'user', content: prompt }],
+      tools: [],
+    });
+    return response.content
+      .filter((block): block is { type: 'text'; text: string } => block.type === 'text')
+      .map((block) => block.text)
+      .join('\n');
+  });
   registry.register(createSpawnSubagentTool(subagentManager));
   registry.register(createListSubagentResultsTool(subagentManager));
 
