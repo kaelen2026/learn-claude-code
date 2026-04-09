@@ -12,7 +12,8 @@
     "s03": "tsx src/stages/s03-todo-write.ts",
     "s04": "tsx src/stages/s04-subagent.ts",
     "s05": "tsx src/stages/s05-skill-loading.ts",
-    "s06": "tsx src/stages/s06-context-compact.ts"
+    "s06": "tsx src/stages/s06-context-compact.ts",
+    "s07": "tsx src/stages/s07-permission-system.ts"
   },
   "keywords": [
     "claude",

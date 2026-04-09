@@ -60,7 +60,8 @@ npm run s06
 
 **第二部分：安全、扩展性、记忆（s07-s11）**
 
-- ⏳ s07-s11: 待实现
+- ✅ s07: Permission System - 权限系统
+- ⏳ s08-s11: 待实现
 
 **第三部分：持久化任务和调度（s12-s14）**
 
@@ -82,6 +83,7 @@ learn-claude-code-ts/
 │   │   ├── s04-subagent.ts
 │   │   ├── s05-skill-loading.ts
 │   │   ├── s06-context-compact.ts
+│   │   ├── s07-permission-system.ts
 │   │   └── ...
 │   ├── core/            # 核心类型和工具
 │   │   ├── types.ts
