@@ -29,3 +29,6 @@ hello.txt
 
 # Context compact cache
 .compact-cache/
+
+# Memory storage
+.memory/

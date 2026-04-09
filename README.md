@@ -62,7 +62,8 @@ npm run s06
 
 - ✅ s07: Permission System - 权限系统
 - ✅ s08: Hook System - 钩子系统
-- ⏳ s09-s11: 待实现
+- ✅ s09: Memory System - 记忆系统
+- ⏳ s10-s11: 待实现
 
 **第三部分：持久化任务和调度（s12-s14）**
 
@@ -86,6 +87,7 @@ learn-claude-code-ts/
 │   │   ├── s06-context-compact.ts
 │   │   ├── s07-permission-system.ts
 │   │   ├── s08-hook-system.ts
+│   │   ├── s09-memory-system.ts
 │   │   └── ...
 │   ├── core/            # 核心类型和工具
 │   │   ├── types.ts
