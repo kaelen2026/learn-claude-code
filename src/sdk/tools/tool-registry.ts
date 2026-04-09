@@ -6,6 +6,10 @@ import { HookRegistry } from '../capabilities/hooks/hook-registry.js';
 import { HookRunner } from '../capabilities/hooks/hook-runner.js';
 import { MemoryManager } from '../capabilities/memory/memory-manager.js';
 import { PermissionGate } from '../capabilities/permissions/permission-gate.js';
+import {
+  commandTouchesSensitiveEnv,
+  isSensitiveEnvPath,
+} from '../capabilities/permissions/sensitive-access.js';
 import { ScheduleManager } from '../capabilities/scheduling/schedule-manager.js';
 import { MessageBus } from '../capabilities/subagents/message-bus.js';
 import { SubagentManager } from '../capabilities/subagents/subagent-manager.js';
@@ -232,7 +236,7 @@ const sensitiveFileGuard: HookHandler = async (event) => {
   const input = (event.payload.input || {}) as Record<string, unknown>;
   const path = String(input.path || '');
 
-  if (toolName === 'read_file' && path.toLowerCase().includes('.env')) {
+  if (toolName === 'read_file' && isSensitiveEnvPath(path)) {
     return {
       exitCode: 1,
       message: `⛔ Hook 阻止读取敏感文件: ${path}`,
@@ -241,6 +245,12 @@ const sensitiveFileGuard: HookHandler = async (event) => {
 
   if (toolName === 'bash') {
     const command = String(input.command || '');
+    if (commandTouchesSensitiveEnv(command)) {
+      return {
+        exitCode: 1,
+        message: `⛔ Hook 阻止通过 bash 读取敏感文件: ${command}`,
+      };
+    }
     if (command.includes('sudo')) {
       return {
         exitCode: 1,

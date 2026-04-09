@@ -55,6 +55,9 @@ export class WorktreeManager {
     const records = await this.store.loadAll();
     const record = records.find((item) => item.name === name);
     if (!record) return `工作树 ${name} 不存在`;
+    if (record.status !== 'active') {
+      return `工作树 ${name} 当前状态为 ${record.status}，不能继续执行命令`;
+    }
     record.lastCommandAt = Date.now();
     await this.store.saveAll(records);
     return routeCommandToWorktree(record, command);

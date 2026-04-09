@@ -16,7 +16,7 @@ export function createListFilesTool(workspaceRoot: string): ToolDefinition {
     },
     execute: async (input) => {
       const requestedPath = String(input.path || '.');
-      const resolved = resolveWorkspacePath(workspaceRoot, requestedPath, 'directory');
+      const resolved = await resolveWorkspacePath(workspaceRoot, requestedPath, 'directory');
       if (!resolved.ok || !resolved.path) {
         return resolved.error || `无效目录路径: ${requestedPath}`;
       }
