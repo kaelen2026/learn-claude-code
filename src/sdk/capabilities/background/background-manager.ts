@@ -1,3 +1,4 @@
+import { exec } from 'child_process';
 import { join } from 'path';
 import type {
   RuntimeNotification,
@@ -57,20 +58,23 @@ export class BackgroundManager {
   }
 
   private execute(taskId: string, command: string) {
-    const duration = 1000 + Math.random() * 2000;
-
-    setTimeout(() => {
-      void this.finishExecution(taskId, command, duration);
-    }, duration);
+    exec(command, { timeout: 120_000, maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
+      const status: RuntimeTaskStatus = error ? 'failed' : 'completed';
+      const output = [stdout, stderr].filter(Boolean).join('\n').trim();
+      void this.finishExecution(taskId, command, status, output || (error?.message ?? ''));
+    });
   }
 
-  private async finishExecution(taskId: string, command: string, duration: number): Promise<void> {
+  private async finishExecution(
+    taskId: string,
+    _command: string,
+    status: RuntimeTaskStatus,
+    output: string,
+  ): Promise<void> {
     try {
       const task = await this.store.get(taskId);
       if (!task) return;
 
-      const status: RuntimeTaskStatus = 'completed';
-      const output = `$ ${command}\n${'='.repeat(40)}\n[模拟] 命令执行完成\n耗时: ${Math.round(duration)}ms\n退出码: 0\n${'='.repeat(40)}`;
       const outputFile = join(this.outputDir, `${taskId}.txt`);
       await writeOutputFile(outputFile, output);
 
@@ -85,12 +89,12 @@ export class BackgroundManager {
         status,
         preview: task.resultPreview,
       });
-    } catch (error) {
+    } catch (err) {
       const failedTask = await this.store.get(taskId);
       if (!failedTask) return;
 
       failedTask.status = 'failed';
-      failedTask.resultPreview = `后台任务失败: ${error instanceof Error ? error.message : String(error)}`;
+      failedTask.resultPreview = `后台任务失败: ${err instanceof Error ? err.message : String(err)}`;
       await this.store.save(failedTask);
 
       this.queue.push({

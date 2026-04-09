@@ -1,9 +1,10 @@
+import { exec } from 'child_process';
 import type { ToolDefinition } from '../../../shared/types.js';
 
 export function createBashTool(): ToolDefinition {
   return {
     name: 'bash',
-    description: '同步执行短命令的占位工具，当前仍使用模拟输出',
+    description: '在 shell 中同步执行命令并返回输出',
     riskLevel: 'write',
     inputSchema: {
       type: 'object',
@@ -12,6 +13,18 @@ export function createBashTool(): ToolDefinition {
       },
       required: ['command'],
     },
-    execute: async (input) => `[模拟同步] $ ${String(input.command)}\n(ok)`,
+    execute: async (input) => {
+      const command = String(input.command);
+      return new Promise<string>((resolve) => {
+        exec(command, { timeout: 30_000, maxBuffer: 1024 * 1024 }, (error, stdout, stderr) => {
+          if (error) {
+            const output = [stdout, stderr].filter(Boolean).join('\n').trim();
+            resolve(output || `exit code ${error.code ?? 1}: ${error.message}`);
+            return;
+          }
+          resolve(stdout);
+        });
+      });
+    },
   };
 }
