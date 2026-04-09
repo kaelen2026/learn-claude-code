@@ -198,7 +198,12 @@ export class AgentRuntime {
       throw new Error('Session not initialized. Call initSession() first.');
     }
 
-    const emit = this.options.onUIEvent ?? (() => {});
+    const rawEmit = this.options.onUIEvent ?? (() => {});
+    // abort 后不再发送任何 UI 事件
+    const emit = (event: Parameters<typeof rawEmit>[0]) => {
+      if (options?.signal?.aborted) return;
+      rawEmit(event);
+    };
     const messageState = this.sessionMessageState;
     const compactor = this.sessionCompactor;
     const systemPrompt = this.sessionSystemPrompt;
@@ -273,6 +278,9 @@ export class AgentRuntime {
 
       recoveryState.transportAttempts = 0;
 
+      // abort 后立即退出
+      if (options?.signal?.aborted) break;
+
       // handle max_tokens continuation
       if (response.stopReason === 'max_tokens') {
         const decision = selectRecovery({ stopReason: response.stopReason }, recoveryState);
@@ -302,6 +310,7 @@ export class AgentRuntime {
 
       // execute tools with events
       for (const block of response.content) {
+        if (options?.signal?.aborted) break;
         if (block.type === 'tool_use') {
           emit({
             type: 'tool_start',
